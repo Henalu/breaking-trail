@@ -134,6 +134,33 @@ resuelto: true | false                 # false si documenta una limitación sin 
 
 ---
 
+## Dirección de diseño
+
+**Referencias:** Vercel, Linear, Stripe
+**Sensación:** herramienta bien diseñada para desarrolladores — clara, moderna, sin elementos innecesarios
+
+### Principios
+- Minimalismo y espacio en blanco generoso — todo respira
+- Tipografía como elemento principal de diseño
+- Micro-interacciones sutiles (hover suave, fade al scroll) — nunca llamativas
+- Paleta contenida: base negra/oscura, neutros grises, un acento (azul eléctrico o blanco puro)
+
+### Decisiones técnicas de diseño
+- **Fuente:** Geist (Vercel) o Inter — sans-serif moderna, no fuente del sistema
+- **Ancho máximo artículos:** 720px
+- **Ancho máximo home:** 900px
+- **Tipografía Markdown:** @tailwindcss/typography para h2, h3, p, code, pre, table
+- **Código:** fuente monospace, bloques con fondo diferenciado y syntax highlighting via Shiki
+- **Cards:** transición suave en hover, borde con color de acento
+
+### Lo que NO hacer en diseño
+- No añadir animaciones llamativas o que distraigan del contenido
+- No usar más de dos colores de acento
+- No saturar el header con elementos
+- No romper la legibilidad por estética
+
+---
+
 ## Estado actual del proyecto
 
 **Última actualización:** 2026-03-04
@@ -145,8 +172,12 @@ resuelto: true | false                 # false si documenta una limitación sin 
 - ✅ Fase 1: Astro + Tailwind + Vercel funcionando
 - ✅ Fase 2a: Content collections — config.ts + estructura + artículo de prueba
 - ✅ Fase 2b: Routing — /articulos/[slug] y /categoria/[categoria] con URLs limpias
+- ✅ Fase 2c: Home dinámica con ArticleCard — listado ordenado por fecha
+- ✅ Primer artículo real publicado: exportar-registros-seleccionados-lista
+- ✅ Categoría ui-actions añadida al schema
 - URL producción: breaking-trail.vercel.app
 
 **Próximo paso:**
-- Escribir el primer artículo real: "Exportar registros seleccionados desde una lista"
-- Revisar diseño de Article.astro y página de categoría antes de publicar
+- Revisar diseño completo (home, artículo, categoría) antes de escribir más contenido
+- Plantilla Obsidian para captura de conocimiento → artículo
+- Segundo artículo: "Filtrar dinámicamente una variable tipo Slushbucket según roles"

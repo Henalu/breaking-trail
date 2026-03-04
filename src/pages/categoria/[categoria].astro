@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content'
 import Base from '../../layouts/Base.astro'
+import ArticleCard from '../../components/ArticleCard.astro'
 
 const categorias = ['awa', 'cmdb', 'assignment-engine', 'integraciones', 'business-rules', 'transform-maps', 'ui-actions'] as const
 type Categoria = typeof categorias[number]
@@ -22,18 +23,6 @@ const categoriaLabel: Record<Categoria, string> = {
   'ui-actions': 'UI Actions',
 }
 
-const dificultadLabel: Record<string, string> = {
-  basico: 'Básico',
-  intermedio: 'Intermedio',
-  avanzado: 'Avanzado',
-}
-
-const dificultadColor: Record<string, string> = {
-  basico: 'text-green-400',
-  intermedio: 'text-yellow-400',
-  avanzado: 'text-red-400',
-}
-
 const todos = await getCollection('articles')
 const articulos = todos
   .filter(a => a.data.categoria === categoria)
@@ -43,42 +32,31 @@ const titulo = categoriaLabel[categoria]
 ---
 
 <Base title={titulo} description={`Artículos de ${titulo} en Breaking Trail — referencia técnica ServiceNow en español.`}>
-  <nav class="text-sm text-gray-500 mb-6">
-    <a href="/" class="hover:text-blue-400 transition-colors">Inicio</a>
+  <nav class="text-sm text-gray-600 mb-8">
+    <a href="/" class="hover:text-gray-300 transition-colors">Inicio</a>
     <span class="mx-2">/</span>
     <span>{titulo}</span>
   </nav>
 
-  <h1 class="text-3xl font-bold mb-2">{titulo}</h1>
-  <p class="text-gray-500 mb-8">{articulos.length} {articulos.length === 1 ? 'artículo' : 'artículos'}</p>
+  <h1 class="text-2xl font-semibold text-white mb-1">{titulo}</h1>
+  <p class="text-gray-600 text-sm mb-8">{articulos.length} {articulos.length === 1 ? 'artículo' : 'artículos'}</p>
 
   {articulos.length === 0 ? (
-    <p class="text-gray-500">Todavía no hay artículos en esta categoría.</p>
+    <p class="text-gray-600 text-sm">Todavía no hay artículos en esta categoría.</p>
   ) : (
-    <ul class="space-y-4">
+    <ul class="space-y-3">
       {articulos.map(articulo => (
         <li>
-          <a
-            href={`/articulos/${articulo.slug}`}
-            class="block p-5 rounded-lg border border-gray-800 hover:border-gray-600 hover:bg-gray-900/50 transition-colors group"
-          >
-            <div class="flex items-center gap-2 mb-2">
-              <span class={`text-xs font-medium ${dificultadColor[articulo.data.dificultad]}`}>
-                {dificultadLabel[articulo.data.dificultad]}
-              </span>
-              {!articulo.data.resuelto && (
-                <span class="text-xs text-orange-400">· Sin solución completa</span>
-              )}
-            </div>
-            <h2 class="text-lg font-semibold text-white group-hover:text-blue-400 transition-colors mb-1">
-              {articulo.data.title}
-            </h2>
-            <p class="text-gray-400 text-sm line-clamp-2">{articulo.data.description}</p>
-            <p class="text-gray-600 text-xs mt-3">
-              {articulo.data.fecha.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
-              · {articulo.data.servicenow_version.join(', ')}
-            </p>
-          </a>
+          <ArticleCard
+            slug={articulo.slug}
+            title={articulo.data.title}
+            description={articulo.data.description}
+            categoria={articulo.data.categoria}
+            dificultad={articulo.data.dificultad}
+            fecha={articulo.data.fecha}
+            servicenow_version={articulo.data.servicenow_version}
+            resuelto={articulo.data.resuelto}
+          />
         </li>
       ))}
     </ul>

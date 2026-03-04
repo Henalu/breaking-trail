@@ -21,9 +21,9 @@ const dificultadLabel: Record<string, string> = {
 }
 
 const dificultadColor: Record<string, string> = {
-  basico: 'text-green-400 bg-green-400/10',
-  intermedio: 'text-yellow-400 bg-yellow-400/10',
-  avanzado: 'text-red-400 bg-red-400/10',
+  basico: 'text-gray-400 bg-white/[0.06]',
+  intermedio: 'text-gray-300 bg-white/[0.08]',
+  avanzado: 'text-white bg-white/[0.10]',
 }
 
 const categoriaLabel: Record<string, string> = {
@@ -43,7 +43,7 @@ const fechaFormateada = fecha.toLocaleDateString('es-ES', {
 })
 ---
 
-<Base title={title} description={description}>
+<Base title={title} description={description} narrow={true}>
   <article>
     <!-- Breadcrumb -->
     <nav class="text-sm text-gray-500 mb-6">

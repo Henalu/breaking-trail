@@ -4,9 +4,19 @@ import '../styles/global.css'
 interface Props {
   title: string
   description: string
+  narrow?: boolean
 }
 
-const { title, description } = Astro.props
+const { title, description, narrow = false } = Astro.props
+
+const categorias = [
+  { slug: 'awa', label: 'AWA' },
+  { slug: 'business-rules', label: 'Business Rules' },
+  { slug: 'cmdb', label: 'CMDB' },
+  { slug: 'integraciones', label: 'Integraciones' },
+  { slug: 'transform-maps', label: 'Transform Maps' },
+  { slug: 'ui-actions', label: 'UI Actions' },
+]
 ---
 
 <!doctype html>
@@ -17,20 +27,43 @@ const { title, description } = Astro.props
     <meta name="description" content={description} />
     <title>{title} | Breaking Trail</title>
   </head>
-  <body class="bg-gray-950 text-gray-100 min-h-screen">
-    <header class="border-b border-gray-800 px-6 py-4">
-      <a href="/" class="text-lg font-bold text-white hover:text-blue-400 transition-colors">
-        Breaking Trail
-      </a>
-      <span class="text-gray-500 text-sm ml-2">ServiceNow Reference</span>
+  <body class="bg-[#0a0a0a] text-gray-100 min-h-screen font-sans antialiased">
+
+    <header class="border-b border-white/[0.06] sticky top-0 z-10 bg-[#0a0a0a]/90 backdrop-blur-sm">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="flex items-center gap-8 h-14">
+
+          <!-- Logo -->
+          <a href="/" class="shrink-0 text-sm font-semibold text-white tracking-tight">
+            Breaking Trail
+          </a>
+
+          <!-- Nav categorías -->
+          <nav class="flex items-center gap-1 overflow-x-auto scrollbar-none">
+            {categorias.map(cat => (
+              <a
+                href={`/categoria/${cat.slug}`}
+                class="shrink-0 text-xs text-gray-500 hover:text-gray-200 px-2.5 py-1.5 rounded-md hover:bg-white/[0.06] transition-colors"
+              >
+                {cat.label}
+              </a>
+            ))}
+          </nav>
+
+        </div>
+      </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-6 py-10">
+    <main class:list={[
+      'mx-auto px-6 py-12',
+      narrow ? 'max-w-[720px]' : 'max-w-[900px]'
+    ]}>
       <slot />
     </main>
 
-    <footer class="border-t border-gray-800 px-6 py-6 text-center text-gray-500 text-sm">
+    <footer class="border-t border-white/[0.06] px-6 py-8 text-center text-gray-600 text-xs">
       Breaking Trail — Referencia técnica ServiceNow en español
     </footer>
+
   </body>
 </html>
