@@ -1,101 +1,138 @@
 ---
 title: "Reasignación automática cuando un agente se desconecta en AWA"
-description: "Cómo configurar AWA para que los trabajos asignados a un agente desconectado se redistribuyan automáticamente sin intervención manual."
+description: "Cómo implementar una Business Rule que reasigne work items al canal AWA cuando un agente pasa a estado offline, sin intervención manual."
 categoria: awa
-tags: ["AWA", "Advanced Work Assignment", "agentes", "disponibilidad", "reasignación"]
+tags: [awa, business-rule, agente, offline, reasignacion, glide-record]
 fecha: 2026-03-04
 dificultad: intermedio
-servicenow_version: ["Utah", "Vancouver", "Washington DC"]
+servicenow_version: [Xanadu, Zurich, Yokohama]
 resuelto: true
 ---
 
 ## El problema
 
-Un agente cierra sesión o pierde conexión con los canales de mensajería. Los trabajos que tenía asignados quedan bloqueados en estado **Assigned** sin avanzar. El supervisor no recibe alerta y el cliente espera sin respuesta.
+Un agente está trabajando en AWA con work items asignados. En mitad de la jornada pasa a estado offline — cierra sesión, pierde conectividad, o su presencia cambia manualmente. Los work items que tenía asignados quedan bloqueados: siguen apareciendo como asignados a ese agente, AWA no los redistribuye, y el canal pierde capacidad efectiva hasta que alguien interviene manualmente.
 
-En logs de AWA (`awa_work_item`) se ve:
+ServiceNow no reasigna automáticamente los work items cuando un agente pasa a offline. Ese comportamiento hay que construirlo.
 
-```
-work_item.state = "assigned"
-work_item.agent = "jdoe"
-agent.presence = "offline"
-```
-
-El trabajo permanece asignado indefinidamente aunque el agente esté offline.
+---
 
 ## Por qué ocurre
 
-AWA no monitoriza la presencia del agente de forma continua una vez que el trabajo está asignado. El motor de asignación solo actúa sobre trabajos en estado `pending` o `queued`. Una vez en `assigned`, el trabajo queda fuera del ciclo de reasignación a menos que se configure explícitamente el **Inactivity timeout**.
+AWA gestiona la asignación de trabajo, pero no monitoriza activamente el estado de presencia de los agentes para reaccionar ante cambios. Cuando `awa_agent_presence` registra que un agente ha pasado a offline, el motor de AWA no lanza ningún proceso de redistribución por sí solo.
+
+Los work items en tabla `awa_work_item` siguen en estado `accepted` con el agente asignado. Desde el punto de vista de AWA, ese agente sigue siendo el propietario del trabajo — simplemente está "ocupado". El resultado es trabajo parado sin que nadie lo procese.
+
+El trigger correcto para atacar este problema es la tabla `awa_agent_presence`, que registra cada cambio de estado de presencia de los agentes. Una Business Rule sobre esa tabla, filtrando el cambio de estado activo a offline, es el punto de entrada adecuado.
+
+---
 
 ## Lo que no funcionó primero
 
-- Activar el campo **"Accept timeout"**: solo afecta al tiempo que el agente tiene para aceptar, no a la sesión activa.
-- Crear una Business Rule en `awa_agent_presence` para reasignar al cambiar presencia: genera condición de carrera con el propio motor AWA y puede producir asignaciones duplicadas.
+El primer intento fue usar una Business Rule sobre `awa_work_item` directamente, buscando items en estado `accepted` cuando el agente cambia de estado. El problema es que `awa_work_item` no tiene visibilidad directa del cambio de presencia del agente — hay que cruzar dos tablas y el timing no es fiable en una BR síncrona.
+
+El segundo intento fue usar un Scheduled Job que revisara periódicamente agentes offline con work items asignados. Funciona, pero introduce un delay de varios minutos entre que el agente se desconecta y que el trabajo se redistribuye. En canales con SLA ajustados, ese delay es inaceptable.
+
+La BR sobre `awa_agent_presence` con trigger `after update` resuelve ambos problemas: reacciona en el momento exacto del cambio de presencia y tiene acceso directo al agente que acaba de desconectarse.
+
+---
 
 ## La solución real
 
-### 1. Configurar el Inactivity Timeout en la cola
+Una Business Rule sobre `awa_agent_presence` que se dispara cuando el agente pasa de estado activo a offline. Vacía el `assigned_to` de los work items activos asignados a ese agente y pone los `awa_work_item` correspondientes en estado `queued` para que AWA los redistribuya.
 
-En **AWA > Queues**, abrir la cola afectada y configurar:
+**Configuración de la Business Rule:**
 
-| Campo | Valor recomendado |
-|-------|-------------------|
-| Inactivity timeout | `300` (segundos) |
-| Inactivity timeout action | `Reassign` |
+| Campo | Valor |
+|-------|-------|
+| Table | `awa_agent_presence` |
+| When | after |
+| Update | true |
+| Filter condition | `current_presence_state CHANGES FROM [activo] TO [offline]` |
 
-### 2. Activar la monitorización de presencia en el canal
+Los sys_id de los estados de presencia varían entre instancias. Consúltalos en tu instancia filtrando la tabla `awa_agent_presence_state`.
 
-En **AWA > Channels**, verificar que el canal tiene activado:
-
-```
-Reassign on logout: true
-Logout timeout: 60 (segundos de gracia antes de considerar al agente offline)
-```
-
-### 3. Script de verificación (Background Script)
-
-Para revisar el estado actual de trabajos asignados a agentes offline:
+**Script:**
 
 ```javascript
-var gr = new GlideRecord('awa_work_item');
-gr.addQuery('state', 'assigned');
-gr.query();
+(function executeRule(current, previous) {
 
-while (gr.next()) {
-  var agentId = gr.getValue('agent');
-  var presence = new GlideRecord('awa_agent_presence');
-  presence.addQuery('agent', agentId);
-  presence.addQuery('presence', 'offline');
-  presence.query();
+    var agent = current.agent;
 
-  if (presence.next()) {
-    gs.info('Work item sin agente activo: ' + gr.getValue('number') +
-            ' | Agente: ' + gr.getDisplayValue('agent'));
-  }
-}
+    // Sustituye 'x_your_table' por la tabla configurada en tu Service Channel de AWA.
+    // Encuéntrala en: AWA > Service Channels > [tu canal] > campo "Table".
+    // Habitualmente es una tabla custom que extiende de task o case.
+    var grWork = new GlideRecord('x_your_table');
+    grWork.addEncodedQuery('assigned_to=' + agent + '^active=true^stateIN-5,1');
+    grWork.orderByDesc('sys_created_on');
+    grWork.query();
+
+    while (grWork.next()) {
+
+        // Vaciar el asignado — el work item vuelve al pool
+        grWork.setValue('assigned_to', '');
+        grWork.update();
+
+        // Actualizar el awa_work_item asociado para que AWA recalcule capacidad
+        var grAWI = new GlideRecord('awa_work_item');
+        grAWI.addEncodedQuery(
+            'document_id=' + grWork.getUniqueValue() +
+            '^assigned_to=' + agent +
+            '^state=accepted' +
+            '^rejected=false'
+        );
+        grAWI.orderByDesc('sys_created_on');
+        grAWI.setLimit(100);
+        grAWI.query();
+
+        while (grAWI.next()) {
+            grAWI.setValue('state', 'queued');
+            grAWI.setValue('assigned_to', '');
+            grAWI.setValue('assignment_group', '');
+            grAWI.update();
+        }
+    }
+
+})(current, previous);
 ```
+
+**Por qué se actualiza `awa_work_item` además del work item propio:**
+
+Vaciar `assigned_to` en tu tabla de work items libera el registro visualmente, pero AWA sigue contabilizando ese trabajo como carga del agente hasta que el `awa_work_item` asociado cambia de estado. Si no actualizas `awa_work_item` a `queued`, la capacidad del agente no se libera correctamente y AWA puede rechazar nuevas asignaciones a otros agentes por considerar que el canal está lleno.
+
+---
 
 ## Cómo verificar que funciona
 
-1. Asignar un trabajo de prueba a un agente de test.
-2. Forzar que el agente pase a offline (cerrar sesión en el portal del agente).
-3. Esperar el tiempo configurado en **Inactivity timeout** (ej. 5 minutos).
-4. Verificar en `awa_work_item` que el registro cambió de estado a `queued` y tiene el campo `agent` vacío.
-5. Confirmar en el log de AWA que aparece el evento `work_item_reassigned`.
+1. Asigna manualmente un work item a un agente via AWA
+2. Confirma que `awa_work_item` tiene un registro en estado `accepted` para ese agente
+3. Cambia el estado de presencia del agente a offline desde `awa_agent_presence`
+4. Verifica que el `assigned_to` del work item ha quedado vacío
+5. Verifica que el `awa_work_item` asociado ha pasado a estado `queued`
+6. Comprueba en el log (`gs.info`) que la BR se ha ejecutado si añadiste trazas
+
+Si los work items no se liberan, revisa los sys_id del filtro de presencia — es el punto de fallo más habitual.
+
+---
 
 ## Casos edge y advertencias
 
-- Si el agente se reconecta antes de que expire el timeout, el trabajo **no** se reasigna. Esto es el comportamiento esperado.
-- Con **Inactivity timeout** muy bajo (< 60 s) pueden producirse reasignaciones falsas en conexiones inestables.
-- En versiones anteriores a **Utah**, el campo `Reassign on logout` no existe en la UI; debe configurarse vía tabla `awa_channel_config` directamente.
-- Si el cliente responde durante el timeout, el temporizador **no** se reinicia automáticamente — verificar la configuración de **Customer response timeout** por separado.
+**Work items asignados manualmente** — esta BR no distingue entre work items asignados por AWA y los asignados manualmente por un supervisor. Si en tu implementación existen asignaciones manuales que deben preservarse aunque el agente esté offline, necesitas añadir un campo flag que identifique el origen de la asignación y filtrar en consecuencia.
+
+**Agentes que se reconectan rápidamente** — si un agente pierde conectividad brevemente y reconecta en segundos, la BR ya habrá vaciado sus asignaciones. No hay rollback automático: AWA reasignará el trabajo según disponibilidad en ese momento, que puede ser a otro agente. Evalúa si esto es aceptable en tu caso de uso.
+
+**Volumen alto de work items por agente** — el bucle actualiza un registro por iteración. Con agentes que tienen decenas de work items activos, el tiempo de ejecución puede ser notable. Si tu caso de uso implica volúmenes altos, considera mover la lógica a un script en background con `GlideRecord` en modo batch o usar `executeNow` con un Scheduled Script.
+
+**El filtro `stateIN-5,1`** — los valores de estado son específicos de la tabla que uses en tu Service Channel. Ajusta el filtro a los estados que en tu implementación representan trabajo activo pendiente de completar.
+
+---
 
 ## Versiones de ServiceNow afectadas
 
-| Versión | Comportamiento |
-|---------|---------------|
-| San Diego y anteriores | `Reassign on logout` no disponible en UI |
-| Tokyo | Disponible pero con bug conocido (KB1234567) en canales de chat |
-| Utah | Comportamiento estable, configuración completa vía UI |
-| Vancouver | Igual que Utah, sin cambios relevantes |
-| Washington DC | Añade alerta de supervisor cuando se dispara reasignación |
+Probado y funcionando en:
+
+| Versión | Estado |
+|---------|--------|
+| Yokohama | ✅ Funciona |
+| Zurich | ✅ Funciona |
+| Xanadu | ✅ Funciona |
