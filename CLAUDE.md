@@ -143,10 +143,10 @@ resuelto: true | false                 # false si documenta una limitación sin 
 **Completado:**
 - ✅ Fase 0: Definición completa
 - ✅ Fase 1: Astro + Tailwind + Vercel funcionando
-- ✅ Fase 2a: Content collections — config.ts + estructura de carpetas + artículo de prueba (AWA)
+- ✅ Fase 2a: Content collections — config.ts + estructura + artículo de prueba
+- ✅ Fase 2b: Routing — /articulos/[slug] y /categoria/[categoria] con URLs limpias
 - URL producción: breaking-trail.vercel.app
 
 **Próximo paso:**
-- Crear páginas de routing: `articulos/[...slug].astro` y `categoria/[categoria].astro`
-- Crear layouts Article.astro para renderizar artículos
-- Publicar primer artículo real (listado planificado abajo)
+- Escribir el primer artículo real: "Exportar registros seleccionados desde una lista"
+- Revisar diseño de Article.astro y página de categoría antes de publicar

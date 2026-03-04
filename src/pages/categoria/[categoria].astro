@@ -2,11 +2,11 @@
 import { getCollection } from 'astro:content'
 import Base from '../../layouts/Base.astro'
 
-const categorias = ['awa', 'cmdb', 'assignment-engine', 'integraciones', 'business-rules', 'transform-maps'] as const
+const categorias = ['awa', 'cmdb', 'assignment-engine', 'integraciones', 'business-rules', 'transform-maps', 'ui-actions'] as const
 type Categoria = typeof categorias[number]
 
 export async function getStaticPaths() {
-  const categorias = ['awa', 'cmdb', 'assignment-engine', 'integraciones', 'business-rules', 'transform-maps'] as const
+  const categorias = ['awa', 'cmdb', 'assignment-engine', 'integraciones', 'business-rules', 'transform-maps', 'ui-actions'] as const
   return categorias.map(categoria => ({ params: { categoria } }))
 }
 
@@ -19,6 +19,7 @@ const categoriaLabel: Record<Categoria, string> = {
   'integraciones': 'Integraciones',
   'business-rules': 'Business Rules',
   'transform-maps': 'Transform Maps',
+  'ui-actions': 'UI Actions',
 }
 
 const dificultadLabel: Record<string, string> = {

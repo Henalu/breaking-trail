@@ -12,6 +12,7 @@ const articles = defineCollection({
       'integraciones',
       'business-rules',
       'transform-maps',
+      'ui-actions',
     ]),
     tags: z.array(z.string()).min(2).max(6),
     fecha: z.coerce.date(),
