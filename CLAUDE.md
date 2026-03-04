@@ -10,7 +10,7 @@ Objetivo a 12 meses: ser LA referencia técnica en español para profesionales S
 
 ## Stack y versiones
 
-- **Framework:** Astro 4
+- **Framework:** Astro 5
 - **Estilos:** Tailwind CSS
 - **Contenido:** Markdown / MDX
 - **Deploy:** Vercel via GitHub (push a main = deploy automático)
@@ -34,7 +34,7 @@ npx pagefind       # Regenerar índice de búsqueda (después de build)
 ## Arquitectura de carpetas
 
 ```
-astro-servicenow-ref/
+breaking-trail/          # raíz del repo
 ├── src/
 │   ├── content/
 │   │   ├── articles/               # Artículos en Markdown
@@ -104,7 +104,7 @@ resuelto: true | false                 # false si documenta una limitación sin 
 
 | Decisión | Alternativa descartada | Razón |
 |----------|----------------------|-------|
-| Astro 4 | Next.js | Astro es superior para contenido estático: 0 JS por defecto, SEO nativo, MDX trivial |
+| Astro 5 | Next.js | Astro es superior para contenido estático: 0 JS por defecto, SEO nativo, MDX trivial |
 | Markdown + VSCode | CMS visual (Contentful, Sanity) | Perfil técnico del autor, sin fricción, portable, indexable por IA |
 | Pagefind | Algolia, ElasticSearch | Solución estática sin coste de servidor, ideal para fase inicial |
 | Vercel | Netlify, VPS | Mejor DX, gratis a esta escala, CDN global automático, deploy desde GitHub |
@@ -136,21 +136,17 @@ resuelto: true | false                 # false si documenta una limitación sin 
 
 ## Estado actual del proyecto
 
-**Última actualización:** 2025-01-03
+**Última actualización:** 2026-03-04
 
-**Fase actual:** Fase 0 — Definición ✅ COMPLETADA
+**Fase actual:** Fase 2 — Contenido mínimo viable 🔄 En curso
 
 **Completado:**
-- Stack definido y documentado
-- Arquitectura de carpetas creada en VSCode
-- Schema de frontmatter definido
-- Roadmap por fases definido
-- 5 artículos planificados con orden de publicación
-- Dominio elegido: Breaking Trail
-- Claude Code instalado
-- CLAUDE.md operacional creado
+- ✅ Fase 0: Definición completa
+- ✅ Fase 1: Astro + Tailwind + Vercel funcionando
+- ✅ Fase 2a: Content collections — config.ts + estructura de carpetas + artículo de prueba (AWA)
+- URL producción: breaking-trail.vercel.app
 
 **Próximo paso:**
-- Fase 1: Inicializar proyecto Astro (`npm create astro@latest`)
-- Conectar repositorio GitHub con Vercel
-- Crear layout base y publicar primer artículo de prueba
+- Crear páginas de routing: `articulos/[...slug].astro` y `categoria/[categoria].astro`
+- Crear layouts Article.astro para renderizar artículos
+- Publicar primer artículo real (listado planificado abajo)

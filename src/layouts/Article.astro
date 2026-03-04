@@ -1,0 +1,97 @@
+---
+import Base from './Base.astro'
+
+interface Props {
+  title: string
+  description: string
+  categoria: string
+  dificultad: 'basico' | 'intermedio' | 'avanzado'
+  servicenow_version: string[]
+  fecha: Date
+  resuelto: boolean
+  tags: string[]
+}
+
+const { title, description, categoria, dificultad, servicenow_version, fecha, resuelto, tags } = Astro.props
+
+const dificultadLabel: Record<string, string> = {
+  basico: 'Básico',
+  intermedio: 'Intermedio',
+  avanzado: 'Avanzado',
+}
+
+const dificultadColor: Record<string, string> = {
+  basico: 'text-green-400 bg-green-400/10',
+  intermedio: 'text-yellow-400 bg-yellow-400/10',
+  avanzado: 'text-red-400 bg-red-400/10',
+}
+
+const categoriaLabel: Record<string, string> = {
+  'awa': 'Advanced Work Assignment',
+  'cmdb': 'CMDB',
+  'assignment-engine': 'Assignment Engine',
+  'integraciones': 'Integraciones',
+  'business-rules': 'Business Rules',
+  'transform-maps': 'Transform Maps',
+}
+
+const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+})
+---
+
+<Base title={title} description={description}>
+  <article>
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-500 mb-6">
+      <a href="/" class="hover:text-blue-400 transition-colors">Inicio</a>
+      <span class="mx-2">/</span>
+      <a href={`/categoria/${categoria}`} class="hover:text-blue-400 transition-colors">
+        {categoriaLabel[categoria] ?? categoria}
+      </a>
+    </nav>
+
+    <!-- Cabecera del artículo -->
+    <header class="mb-8 pb-8 border-b border-gray-800">
+      <div class="flex flex-wrap items-center gap-2 mb-4">
+        <span class={`text-xs font-medium px-2 py-1 rounded ${dificultadColor[dificultad]}`}>
+          {dificultadLabel[dificultad]}
+        </span>
+        {!resuelto && (
+          <span class="text-xs font-medium px-2 py-1 rounded text-orange-400 bg-orange-400/10">
+            Sin solución completa
+          </span>
+        )}
+      </div>
+
+      <h1 class="text-3xl font-bold text-white mb-3 leading-tight">{title}</h1>
+      <p class="text-gray-400 text-lg mb-5">{description}</p>
+
+      <div class="flex flex-wrap gap-4 text-sm text-gray-500">
+        <span>{fechaFormateada}</span>
+        <span>·</span>
+        <span>Versiones: {servicenow_version.join(', ')}</span>
+      </div>
+
+      <div class="flex flex-wrap gap-2 mt-4">
+        {tags.map(tag => (
+          <span class="text-xs px-2 py-1 rounded bg-gray-800 text-gray-400">#{tag}</span>
+        ))}
+      </div>
+    </header>
+
+    <!-- Contenido del artículo -->
+    <div class="prose prose-invert prose-headings:text-white prose-a:text-blue-400 prose-code:text-blue-300 prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-800 max-w-none">
+      <slot />
+    </div>
+
+    <!-- Pie del artículo -->
+    <footer class="mt-12 pt-8 border-t border-gray-800">
+      <a href={`/categoria/${categoria}`} class="text-blue-400 hover:text-blue-300 transition-colors text-sm">
+        ← Ver más artículos de {categoriaLabel[categoria] ?? categoria}
+      </a>
+    </footer>
+  </article>
+</Base>
