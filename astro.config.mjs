@@ -10,12 +10,7 @@ import pagefind from 'astro-pagefind';
 export default defineConfig({
   site: 'https://breaking-trail.vercel.app',
   vite: {
-    plugins: [tailwindcss()],
-    build: {
-      rollupOptions: {
-        external: ['/pagefind/pagefind-ui.js']
-      }
-    }
+    plugins: [tailwindcss()]
   },
   integrations: [mdx(), sitemap(), pagefind()]
 });
