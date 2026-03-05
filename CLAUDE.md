@@ -175,9 +175,12 @@ resuelto: true | false                 # false si documenta una limitación sin 
 - ✅ Fase 2c: Home dinámica con ArticleCard — listado ordenado por fecha
 - ✅ Primer artículo real publicado: exportar-registros-seleccionados-lista
 - ✅ Categoría ui-actions añadida al schema
+- ✅ Rediseño completo — Geist, typography, nav, escala de grises
+- ✅ 3 artículos reales publicados
+- ✅ Sitemap automático + Google Search Console verificado
 - URL producción: breaking-trail.vercel.app
 
 **Próximo paso:**
-- Revisar diseño completo (home, artículo, categoría) antes de escribir más contenido
 - Plantilla Obsidian para captura de conocimiento → artículo
-- Segundo artículo: "Filtrar dinámicamente una variable tipo Slushbucket según roles"
+- Segundo artículo planificado: "Filtrar dinámicamente una variable tipo Slushbucket según roles"
+- Pagefind (búsqueda interna) — completa la Fase 2
