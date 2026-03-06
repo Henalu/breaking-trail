@@ -161,11 +161,38 @@ resuelto: true | false                 # false si documenta una limitación sin 
 
 ---
 
+## Visión a largo plazo (contexto estratégico)
+
+El proyecto evoluciona en tres horizontes:
+
+**Horizonte 1 — Base de conocimiento** (Fases 0-3, actual)
+Contenido técnico de calidad como activo principal.
+Credibilidad = autoridad = oportunidades profesionales.
+
+**Horizonte 2 — RAG sobre contenido propio** (Fase 4)
+Umbral de activación: ~40 artículos publicados con estructura consistente.
+El contenido de la web se convierte en base de conocimiento indexada.
+Tecnología: Astro Islands + embeddings + vector DB (por decidir).
+
+**Horizonte 3 — Herramientas para desarrolladores** (Fase 5)
+Herramientas especializadas basadas en el RAG:
+- Script Analyzer
+- Encoded Query Analyzer  
+- Implementation Assistant
+
+Modelo de negocio tentativo: freemium con tier Pro para acceso completo.
+
+**Principio que no cambia en ningún horizonte:**
+Experiencia real de producción > documentación teórica.
+Ese es el diferenciador y no se negocia.
+
+---
+
 ## Estado actual del proyecto
 
-**Última actualización:** 2026-03-04
+**Última actualización:** 2026-03-05
 
-**Fase actual:** Fase 2 — Contenido mínimo viable 🔄 En curso
+**Fase actual:** Fase 3 — Autoridad 🔄 En curso
 
 **Completado:**
 - ✅ Fase 0: Definición completa
@@ -173,14 +200,14 @@ resuelto: true | false                 # false si documenta una limitación sin 
 - ✅ Fase 2a: Content collections — config.ts + estructura + artículo de prueba
 - ✅ Fase 2b: Routing — /articulos/[slug] y /categoria/[categoria] con URLs limpias
 - ✅ Fase 2c: Home dinámica con ArticleCard — listado ordenado por fecha
-- ✅ Primer artículo real publicado: exportar-registros-seleccionados-lista
-- ✅ Categoría ui-actions añadida al schema
-- ✅ Rediseño completo — Geist, typography, nav, escala de grises
-- ✅ 3 artículos reales publicados
+- ✅ Fase 2d: Pagefind — búsqueda interna funcionando
+- ✅ Fase 2 completada
+- ✅ 4 artículos reales publicados
 - ✅ Sitemap automático + Google Search Console verificado
+- ✅ Plantilla Obsidian para captura de conocimiento
+- ✅ División de trabajo Claude / Claude Code establecida
 - URL producción: breaking-trail.vercel.app
 
 **Próximo paso:**
-- Plantilla Obsidian para captura de conocimiento → artículo
-- Segundo artículo planificado: "Filtrar dinámicamente una variable tipo Slushbucket según roles"
-- Pagefind (búsqueda interna) — completa la Fase 2
+- Capturar siguiente problema de producción con plantilla Obsidian
+- Objetivo Fase 3: 20+ artículos

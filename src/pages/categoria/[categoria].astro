@@ -3,32 +3,31 @@ import { getCollection } from 'astro:content'
 import Base from '../../layouts/Base.astro'
 import ArticleCard from '../../components/ArticleCard.astro'
 
-const categorias = ['awa', 'cmdb', 'assignment-engine', 'integraciones', 'business-rules', 'transform-maps', 'ui-actions'] as const
-type Categoria = typeof categorias[number]
+const LABELS: Record<string, string> = {
+  'awa': 'Advanced Work Assignment',
+  'assignment-engine': 'Assignment Engine',
+  'business-rules': 'Business Rules',
+  'cmdb': 'CMDB',
+  'integraciones': 'Integraciones',
+  'transform-maps': 'Transform Maps',
+  'ui-actions': 'UI Actions',
+  'workspaces': 'Workspaces',
+}
 
 export async function getStaticPaths() {
-  const categorias = ['awa', 'cmdb', 'assignment-engine', 'integraciones', 'business-rules', 'transform-maps', 'ui-actions'] as const
+  const articles = await getCollection('articles')
+  const categorias = [...new Set(articles.map(a => a.data.categoria))]
   return categorias.map(categoria => ({ params: { categoria } }))
 }
 
-const { categoria } = Astro.params as { categoria: Categoria }
-
-const categoriaLabel: Record<Categoria, string> = {
-  'awa': 'Advanced Work Assignment',
-  'cmdb': 'CMDB',
-  'assignment-engine': 'Assignment Engine',
-  'integraciones': 'Integraciones',
-  'business-rules': 'Business Rules',
-  'transform-maps': 'Transform Maps',
-  'ui-actions': 'UI Actions',
-}
+const { categoria } = Astro.params as { categoria: string }
 
 const todos = await getCollection('articles')
 const articulos = todos
   .filter(a => a.data.categoria === categoria)
   .sort((a, b) => b.data.fecha.getTime() - a.data.fecha.getTime())
 
-const titulo = categoriaLabel[categoria]
+const titulo = LABELS[categoria] ?? categoria
 ---
 
 <Base title={titulo} description={`Artículos de ${titulo} en Breaking Trail — referencia técnica ServiceNow en español.`}>

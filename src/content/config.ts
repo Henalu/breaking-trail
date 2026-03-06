@@ -13,6 +13,7 @@ const articles = defineCollection({
       'business-rules',
       'transform-maps',
       'ui-actions',
+      'workspaces',
     ]),
     tags: z.array(z.string()).min(2).max(6),
     fecha: z.coerce.date(),

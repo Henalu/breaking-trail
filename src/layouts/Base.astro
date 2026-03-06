@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css'
 import Search from '../components/Search.astro'
+import { getCollection } from 'astro:content'
 
 interface Props {
   title: string
@@ -10,14 +11,22 @@ interface Props {
 
 const { title, description, narrow = false } = Astro.props
 
-const categorias = [
-  { slug: 'awa', label: 'AWA' },
-  { slug: 'business-rules', label: 'Business Rules' },
-  { slug: 'cmdb', label: 'CMDB' },
-  { slug: 'integraciones', label: 'Integraciones' },
-  { slug: 'transform-maps', label: 'Transform Maps' },
-  { slug: 'ui-actions', label: 'UI Actions' },
-]
+const LABELS: Record<string, string> = {
+  'awa': 'AWA',
+  'assignment-engine': 'Assignment Engine',
+  'business-rules': 'Business Rules',
+  'cmdb': 'CMDB',
+  'integraciones': 'Integraciones',
+  'transform-maps': 'Transform Maps',
+  'ui-actions': 'UI Actions',
+  'workspaces': 'Workspaces',
+}
+
+const articles = await getCollection('articles')
+const slugsConArticulos = [...new Set(articles.map(a => a.data.categoria))]
+const categorias = slugsConArticulos
+  .map(slug => ({ slug, label: LABELS[slug] ?? slug }))
+  .sort((a, b) => a.label.localeCompare(b.label))
 ---
 
 <!doctype html>
