@@ -14,6 +14,7 @@ const articles = defineCollection({
       'transform-maps',
       'ui-actions',
       'workspaces',
+      'ui-builder',
     ]),
     tags: z.array(z.string()).min(2).max(6),
     fecha: z.coerce.date(),
