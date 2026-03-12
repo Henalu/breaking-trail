@@ -46,20 +46,47 @@ const categorias = slugsConArticulos
     <header class="border-b border-white/[0.06] sticky top-0 z-10 bg-[#0a0a0a]/90 backdrop-blur-sm">
       <div class="max-w-5xl mx-auto px-6">
 
-        <!-- Fila 1: Logo + Búsqueda -->
+        <!-- Fila 1: Logo + Búsqueda + Hamburguesa -->
         <div class="flex items-center justify-between h-14 gap-6">
           <a href="/" class="shrink-0 text-sm font-semibold text-white tracking-tight">
             Breaking Trail
           </a>
-          <Search />
+          <div class="flex items-center gap-3">
+            <Search />
+            <button
+              id="menu-toggle"
+              class="md:hidden shrink-0 text-gray-400 hover:text-white transition-colors p-1"
+              aria-label="Abrir menú"
+              aria-expanded="false"
+            >
+              <svg id="icon-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+              <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <!-- Fila 2: Categorías -->
-        <nav class="flex items-center gap-1 overflow-x-auto scrollbar-none pb-2">
+        <!-- Fila 2: Categorías desktop -->
+        <nav class="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-none pb-2">
           {categorias.map(cat => (
             <a
               href={`/categoria/${cat.slug}`}
               class="shrink-0 text-xs text-gray-500 hover:text-gray-200 px-2.5 py-1.5 rounded-md hover:bg-white/[0.06] transition-colors"
+            >
+              {cat.label}
+            </a>
+          ))}
+        </nav>
+
+        <!-- Menú móvil (desplegable) -->
+        <nav id="mobile-menu" class="hidden md:hidden flex-col pb-3">
+          {categorias.map(cat => (
+            <a
+              href={`/categoria/${cat.slug}`}
+              class="block text-sm text-gray-400 hover:text-white px-2 py-2.5 rounded-md hover:bg-white/[0.06] transition-colors"
             >
               {cat.label}
             </a>
@@ -79,6 +106,32 @@ const categorias = slugsConArticulos
     <footer class="border-t border-white/[0.06] px-6 py-8 text-center text-gray-600 text-xs">
       Breaking Trail — Referencia técnica ServiceNow en español
     </footer>
+
+    <script is:inline>
+      const toggle = document.getElementById('menu-toggle')
+      const menu = document.getElementById('mobile-menu')
+      const iconOpen = document.getElementById('icon-open')
+      const iconClose = document.getElementById('icon-close')
+
+      toggle.addEventListener('click', () => {
+        const isOpen = !menu.classList.contains('hidden')
+        menu.classList.toggle('hidden', isOpen)
+        menu.classList.toggle('flex', !isOpen)
+        iconOpen.classList.toggle('hidden', !isOpen)
+        iconClose.classList.toggle('hidden', isOpen)
+        toggle.setAttribute('aria-expanded', String(!isOpen))
+      })
+
+      document.addEventListener('click', (e) => {
+        if (!toggle.contains(e.target) && !menu.contains(e.target)) {
+          menu.classList.add('hidden')
+          menu.classList.remove('flex')
+          iconOpen.classList.remove('hidden')
+          iconClose.classList.add('hidden')
+          toggle.setAttribute('aria-expanded', 'false')
+        }
+      })
+    </script>
 
   </body>
 </html>

@@ -1,5 +1,22 @@
 # Proyecto: Breaking Trail — ServiceNow Technical Reference
 
+### División de trabajo: este chat vs Claude Code
+
+**Este chat (Claude) es SIEMPRE para:**
+- Arquitectura y decisiones de diseño
+- Revisar código que me traes
+- Generar artículos y contenido
+- Conversación, planificación y estrategia
+- Preparar el prompt exacto para Claude Code
+
+**Claude Code es SIEMPRE quien ejecuta:**
+- Cualquier cambio en archivos del proyecto
+- Builds y verificación
+- Debugging con acceso al filesystem
+
+Nunca genero código para aplicar directamente en este chat.
+Siempre termino con un prompt listo para copiar a Claude Code.
+
 ## Qué es esto
 
 Web de referencia técnica sobre ServiceNow para la comunidad hispanohablante.
@@ -158,6 +175,11 @@ resuelto: true | false                 # false si documenta una limitación sin 
 - No usar más de dos colores de acento
 - No saturar el header con elementos
 - No romper la legibilidad por estética
+
+### Al terminar:
+- Ejecuta npm run build y confirma que no hay errores
+- Actualiza /memory.md: refleja los cambios realizados y el estado actual
+- Si esta tarea completa una fase del roadmap, actualiza también CLAUDE.md
 
 ---
 

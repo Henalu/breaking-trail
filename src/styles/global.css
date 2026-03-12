@@ -150,10 +150,14 @@
     box-shadow: 0 16px 48px rgba(0,0,0,0.7) !important;
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 767px) {
     .pagefind-ui__drawer {
-      width: calc(100vw - 24px) !important;
-      right: -12px !important;
+      position: fixed !important;
+      top: 58px !important;
+      left: 12px !important;
+      right: 12px !important;
+      width: auto !important;
+      max-width: none !important;
     }
 
     #search-container {

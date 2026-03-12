@@ -2,7 +2,40 @@
   "permissions": {
     "allow": [
       "Bash(npm run build)",
-      "Bash(\"c:/Users/Henalu/OneDrive -:*)"
+      "Bash(\"c:/Users/Henalu/OneDrive -:*)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(echo *)",
+      "Bash(touch *)",
+      "Bash(rm *)",
+      "Bash(find *)",
+      "Bash(node *)",
+      "Bash(type *)",
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(curl *)",
+      "Bash(sort *)",
+      "Bash(grep *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Edit",
+      "Write",
+      "Read",
+      "Glob",
+      "Grep",
+      "TodoWrite",
+      "WebFetch",
+      "WebSearch",
+      "Agent",
+      "TaskOutput"
     ]
   }
 }
