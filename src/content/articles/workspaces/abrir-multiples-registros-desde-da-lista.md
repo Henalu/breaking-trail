@@ -2,7 +2,7 @@
 title: "Abrir múltiples registros desde una DA de lista: g_aw no está disponible"
 description: "g_aw no existe en DA de lista. location.href solo abre el último registro. La solución es top.open con GlideAjax al Script Include con prefijo de scope."
 categoria: workspaces
-tags: ["declarative-actions", "workspace", "lista", "top-open", "g_aw", "glideajax", "client-script"]
+tags: ["declarative-actions", "workspace", "lista", "top-open", "glideajax", "client-script"]
 fecha: 2026-03-17
 dificultad: intermedio
 servicenow_version: ["Xanadu", "Zurich"]
