@@ -2,6 +2,7 @@
 import '../styles/global.css'
 import Search from '../components/Search.astro'
 import { getCollection } from 'astro:content'
+import { CATEGORIA_LABELS } from '../lib/categories'
 
 interface Props {
   title: string
@@ -11,23 +12,13 @@ interface Props {
 
 const { title, description, narrow = false } = Astro.props
 
-const LABELS: Record<string, string> = {
-  'awa': 'AWA',
-  'assignment-engine': 'Assignment Engine',
-  'business-rules': 'Business Rules',
-  'cmdb': 'CMDB',
-  'integraciones': 'Integraciones',
-  'transform-maps': 'Transform Maps',
-  'ui-actions': 'UI Actions',
-  'workspaces': 'Workspaces',
-  'ui-builder': 'UI Builder',
-}
-
 const articles = await getCollection('articles')
 const slugsConArticulos = [...new Set(articles.map(a => a.data.categoria))]
 const categorias = slugsConArticulos
-  .map(slug => ({ slug, label: LABELS[slug] ?? slug }))
+  .map(slug => ({ slug, label: CATEGORIA_LABELS[slug] ?? slug }))
   .sort((a, b) => a.label.localeCompare(b.label))
+
+const currentPath = Astro.url.pathname
 ---
 
 <!doctype html>
@@ -37,9 +28,12 @@ const categorias = slugsConArticulos
     <meta name="google-site-verification" content="YMbQ653EAmhsFYnVf2Bt017QSuX2l5GQXuPWj0pD9Bg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <title>{title} | Breaking Trail</title>
+    <meta name="theme-color" content="#0a0a0a" />
+    <title>{Astro.url.pathname === '/' ? 'Breaking Trail — Referencia técnica ServiceNow en español' : `${title} | Breaking Trail`}</title>
+    <link rel="preload" href="/fonts/Geist-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/GeistMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
-    <script src="/pagefind/pagefind-ui.js" is:inline></script>
+    <script src="/pagefind/pagefind-ui.js" defer is:inline></script>
   </head>
   <body class="bg-[#0a0a0a] text-gray-100 min-h-screen font-sans antialiased">
 
@@ -56,37 +50,53 @@ const categorias = slugsConArticulos
             <button
               id="menu-toggle"
               class="md:hidden shrink-0 text-gray-400 hover:text-white transition-colors p-1"
-              aria-label="Abrir menú"
+              aria-label="Abrir menú de categorías"
               aria-expanded="false"
+              aria-controls="mobile-menu"
             >
-              <svg id="icon-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg id="icon-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
               </svg>
-              <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+              <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden" aria-hidden="true">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
             </button>
           </div>
         </div>
 
-        <!-- Fila 2: Categorías desktop -->
-        <nav class="hidden md:flex items-center gap-1 overflow-x-auto scrollbar-none pb-2">
-          {categorias.map(cat => (
-            <a
-              href={`/categoria/${cat.slug}`}
-              class="shrink-0 text-xs text-gray-500 hover:text-gray-200 px-2.5 py-1.5 rounded-md hover:bg-white/[0.06] transition-colors"
-            >
-              {cat.label}
-            </a>
-          ))}
-        </nav>
+        <!-- Fila 2: Categorías desktop con fade de overflow (A-7) -->
+        <div class="hidden md:block relative">
+          <nav aria-label="Categorías" class="flex items-center gap-1 overflow-x-auto scrollbar-none pb-2">
+            {categorias.map(cat => (
+              <a
+                href={`/categoria/${cat.slug}`}
+                class:list={[
+                  'shrink-0 text-xs px-2.5 py-1.5 rounded-md transition-colors',
+                  currentPath === `/categoria/${cat.slug}`
+                    ? 'text-white bg-white/[0.10]'
+                    : 'text-gray-500 hover:text-gray-200 hover:bg-white/[0.06]'
+                ]}
+                aria-current={currentPath === `/categoria/${cat.slug}` ? 'page' : undefined}
+              >
+                {cat.label}
+              </a>
+            ))}
+          </nav>
+          <div class="absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-[#0a0a0a] to-transparent pointer-events-none" aria-hidden="true"></div>
+        </div>
 
         <!-- Menú móvil (desplegable) -->
-        <nav id="mobile-menu" class="hidden md:hidden flex-col pb-3">
+        <nav id="mobile-menu" class="hidden md:hidden flex-col pb-3" aria-label="Categorías">
           {categorias.map(cat => (
             <a
               href={`/categoria/${cat.slug}`}
-              class="block text-sm text-gray-400 hover:text-white px-2 py-2.5 rounded-md hover:bg-white/[0.06] transition-colors"
+              class:list={[
+                'block text-sm px-2 py-2.5 rounded-md transition-colors',
+                currentPath === `/categoria/${cat.slug}`
+                  ? 'text-white bg-white/[0.08]'
+                  : 'text-gray-400 hover:text-white hover:bg-white/[0.06]'
+              ]}
+              aria-current={currentPath === `/categoria/${cat.slug}` ? 'page' : undefined}
             >
               {cat.label}
             </a>
@@ -97,13 +107,13 @@ const categorias = slugsConArticulos
     </header>
 
     <main class:list={[
-      'mx-auto px-6 py-12',
+      'mx-auto px-6 pt-14 pb-20',
       narrow ? 'max-w-[720px]' : 'max-w-[900px]'
     ]}>
       <slot />
     </main>
 
-    <footer class="border-t border-white/[0.06] px-6 py-8 text-center text-gray-600 text-xs">
+    <footer class="border-t border-white/[0.06] px-6 py-8 text-center text-gray-500 text-xs font-mono tracking-wide">
       Breaking Trail — Referencia técnica ServiceNow en español
     </footer>
 

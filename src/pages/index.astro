@@ -9,30 +9,44 @@ const articulos = (await getCollection('articles'))
 
 <Base title="Inicio" description="Referencia técnica de ServiceNow en español. Problemas reales, soluciones reales.">
   <div data-pagefind-ignore="all">
-  <h1 class="text-3xl font-bold mb-2">Breaking Trail</h1>
-  <p class="text-gray-400 mb-10">
-    Referencia técnica de ServiceNow en español. Problemas reales de producción, soluciones reales con código.
-  </p>
 
-  <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">
-    Artículos publicados ({articulos.length})
-  </h2>
+    <!-- Hero -->
+    <div class="pb-12 border-b border-white/[0.06]">
+      <p class="text-xs font-mono text-blue-400/60 tracking-[0.15em] uppercase mb-5">
+        ServiceNow · En español
+      </p>
+      <h1 class="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-[1.08] mb-5">
+        Breaking Trail
+      </h1>
+      <p class="text-gray-400 text-lg leading-relaxed max-w-[520px]">
+        Referencia técnica de ServiceNow en español.<br class="hidden sm:block" />
+        Problemas reales de producción, soluciones reales con código.
+      </p>
+    </div>
 
-  <ul class="space-y-4">
-    {articulos.map(articulo => (
-      <li>
-        <ArticleCard
-          slug={articulo.slug}
-          title={articulo.data.title}
-          description={articulo.data.description}
-          categoria={articulo.data.categoria}
-          dificultad={articulo.data.dificultad}
-          fecha={articulo.data.fecha}
-          servicenow_version={articulo.data.servicenow_version}
-          resuelto={articulo.data.resuelto}
-        />
-      </li>
-    ))}
-  </ul>
+    <!-- Lista de artículos -->
+    <div class="pt-10">
+      <h2 class="text-xs font-mono text-gray-600 tracking-widest uppercase mb-6">
+        {articulos.length} artículos
+      </h2>
+
+      <ul class="space-y-3">
+        {articulos.map(articulo => (
+          <li>
+            <ArticleCard
+              slug={articulo.slug}
+              title={articulo.data.title}
+              description={articulo.data.description}
+              categoria={articulo.data.categoria}
+              dificultad={articulo.data.dificultad}
+              fecha={articulo.data.fecha}
+              servicenow_version={articulo.data.servicenow_version}
+              resuelto={articulo.data.resuelto}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+
   </div>
 </Base>

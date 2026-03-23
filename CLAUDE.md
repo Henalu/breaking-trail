@@ -183,6 +183,33 @@ resuelto: true | false                 # false si documenta una limitación sin 
 
 ---
 
+## Comandos Impeccable — Cuándo Ejecutar (automático)
+
+Los siguientes comandos se ejecutan **sin que tengas que pedirlos**. Son parte del flujo de trabajo estándar.
+
+| Momento | Comando | Por qué |
+|---------|---------|---------|
+| Después de crear o modificar cualquier componente Astro/Tailwind | `/polish` | Cierra el gap entre "funciona" y "está listo para producción" — alineación, espaciado, coherencia visual |
+| Antes de hacer `git push` a main en cambios de UI | `/audit` | Revisa accesibilidad (a11y), responsive y coherencia antes de que Vercel desplegara |
+| Al modificar estilos de tipografía, `@tailwindcss/typography`, o fuentes | `/typeset` | Asegura jerarquía tipográfica, tamaños coherentes y legibilidad en artículos técnicos |
+| Al crear una página nueva (home, categoría, artículo individual) | `/arrange` | Corrige grids monótonos, espaciado inconsistente y jerarquía visual débil |
+| Al añadir un componente nuevo que debe encajar con el design system existente | `/normalize` | Asegura consistencia con las decisiones de diseño Vercel/Linear ya tomadas |
+| Después de escribir o modificar copy de UI (navegación, empty states, CTA) | `/clarify` | Mejora microcopy: labels, instrucciones, mensajes vacíos — crítico en una web de referencia técnica |
+| Cuando un componente tiene estados de carga, empty states o errores | `/harden` | Añade manejo de edge cases, overflow de texto y robustez antes de producción |
+
+### Comandos bajo demanda (no automáticos)
+
+| Cuándo pedirlos | Comando |
+|-----------------|---------|
+| "Este componente se ve plano o aburrido" | `/bolder` |
+| "Este diseño es demasiado llamativo, distrae del contenido" | `/quieter` |
+| "Quiero añadir animaciones sutiles al scroll o hover" | `/animate` |
+| "Revisa la UX del home o del listado de categorías" | `/critique` |
+| "Identifica patrones repetidos en componentes para extraer" | `/extract` |
+| "Configura el contexto de diseño del proyecto para impeccable" | `/teach-impeccable` |
+
+---
+
 ## Visión a largo plazo (contexto estratégico)
 
 El proyecto evoluciona en tres horizontes:
@@ -207,6 +234,29 @@ Modelo de negocio tentativo: freemium con tier Pro para acceso completo.
 **Principio que no cambia en ningún horizonte:**
 Experiencia real de producción > documentación teórica.
 Ese es el diferenciador y no se negocia.
+
+---
+
+## Agentes Disponibles — Cuándo Activar Cada Uno
+
+| Casuística | Agente | Ejemplo de activación |
+|------------|--------|----------------------|
+| Auditar estructura y voz de un artículo nuevo antes de publicar | `engineering-technical-writer` | "Revisa `src/content/articles/awa/reasignacion-automatica.md` — verifica que sigue la estructura estándar (El problema → Por qué ocurre → Lo que no funcionó → Solución real) y que el código de ejemplo compila" |
+| Optimizar artículo para búsquedas en español sobre ServiceNow | `marketing-seo-specialist` | "Analiza el artículo sobre GlideList: mejora la meta description (150-160 chars), estructura H2/H3 para PAA, y sugiere keywords que los profesionales ServiceNow buscan en español" |
+| Crear o modificar componentes Astro / layouts Tailwind | `engineering-frontend-developer` | "Crea un componente `DifficultyBadge` en `src/components/` con Tailwind CSS para mostrar el campo `dificultad` del frontmatter — sin añadir JS al bundle" |
+| Diseñar la arquitectura del chatbot RAG (Horizonte 2) | `engineering-ai-engineer` | "Diseña la arquitectura del RAG con Astro Islands: embeddings de `src/content/articles/`, elección de vector DB serverless, e integración que preserve el 0-JS por defecto de Astro" |
+| Revisar cambios en `config.ts` o layouts antes de push a main | `engineering-code-reviewer` | "Revisa los cambios en `src/content/config.ts` y `src/layouts/Article.astro` — verifica correctitud del schema, posibles breaking changes en el frontmatter y que Pagefind sigue indexando correctamente" |
+| Mejorar visibilidad de artículos en ChatGPT / Perplexity | `marketing-ai-citation-strategist` | "Audita por qué otros sitios de ServiceNow aparecen citados en ChatGPT cuando se busca en español — identifica qué cambios de estructura, schema o entidad pueden hacer que breaking-trail.vercel.app sea el citado" |
+| Gestionar commits convencionales y mensajes de git | `engineering-git-workflow-master` | "Verifica que los últimos commits de artículos siguen las convenciones del repo (`feat:`, `fix:`, `article:`) y sugiere si el historial de la rama main está limpio para el siguiente push a Vercel" |
+| Diseñar sistema de layout o CSS para una página nueva | `design-ux-architect` | "Diseña el layout CSS para `src/pages/categoria/[categoria].astro` respetando max-width 900px, Tailwind, y la dirección de diseño Vercel/Linear — sin romper la legibilidad del contenido" |
+
+### Regla general
+
+- **Antes de publicar cualquier artículo**: usa `engineering-technical-writer` para validar estructura, código de ejemplo, y coherencia con la plantilla estándar del proyecto.
+- **Antes de hacer push a main**: usa `engineering-code-reviewer` si tocaste `config.ts`, layouts, o componentes compartidos; el build roto en Vercel no es reversible sin otro push.
+- **Para trabajo de diseño o UI**: usa `engineering-frontend-developer` para componentes Astro/Tailwind concretos y `design-ux-architect` cuando el problema es de sistema de layout o CSS foundation.
+- **Para crecer en búsqueda**: `marketing-seo-specialist` para Google (organic) y `marketing-ai-citation-strategist` para visibilidad en respuestas de ChatGPT/Perplexity — son objetivos distintos con señales distintas.
+- **Para Horizonte 2 (RAG)**: activa `engineering-ai-engineer` cuando llegues a ~40 artículos publicados; es el umbral definido en la visión estratégica para que el corpus sea suficiente.
 
 ---
 

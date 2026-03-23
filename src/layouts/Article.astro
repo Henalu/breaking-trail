@@ -1,5 +1,6 @@
 ---
 import Base from './Base.astro'
+import { CATEGORIA_LABELS, DIFICULTAD_LABELS, DIFICULTAD_COLORS } from '../lib/categories'
 
 interface Props {
   title: string
@@ -14,28 +15,6 @@ interface Props {
 
 const { title, description, categoria, dificultad, servicenow_version, fecha, resuelto, tags } = Astro.props
 
-const dificultadLabel: Record<string, string> = {
-  basico: 'Básico',
-  intermedio: 'Intermedio',
-  avanzado: 'Avanzado',
-}
-
-const dificultadColor: Record<string, string> = {
-  basico: 'text-gray-400 bg-white/[0.06]',
-  intermedio: 'text-gray-300 bg-white/[0.08]',
-  avanzado: 'text-white bg-white/[0.10]',
-}
-
-const categoriaLabel: Record<string, string> = {
-  'awa': 'Advanced Work Assignment',
-  'cmdb': 'CMDB',
-  'assignment-engine': 'Assignment Engine',
-  'integraciones': 'Integraciones',
-  'business-rules': 'Business Rules',
-  'transform-maps': 'Transform Maps',
-  'ui-actions': 'UI Actions',
-}
-
 const fechaFormateada = fecha.toLocaleDateString('es-ES', {
   year: 'numeric',
   month: 'long',
@@ -46,19 +25,21 @@ const fechaFormateada = fecha.toLocaleDateString('es-ES', {
 <Base title={title} description={description} narrow={true}>
   <article>
     <!-- Breadcrumb -->
-    <nav class="text-sm text-gray-500 mb-6">
-      <a href="/" class="hover:text-blue-400 transition-colors">Inicio</a>
-      <span class="mx-2">/</span>
-      <a href={`/categoria/${categoria}`} class="hover:text-blue-400 transition-colors">
-        {categoriaLabel[categoria] ?? categoria}
+    <nav aria-label="Ruta de navegación" class="text-xs font-mono text-gray-600 mb-8 flex items-center gap-1 flex-wrap tracking-wide">
+      <a href="/" class="hover:text-gray-400 transition-colors">Inicio</a>
+      <span class="mx-1" aria-hidden="true">/</span>
+      <a href={`/categoria/${categoria}`} class="hover:text-gray-400 transition-colors">
+        {CATEGORIA_LABELS[categoria] ?? categoria}
       </a>
+      <span class="mx-1" aria-hidden="true">/</span>
+      <span class="text-gray-500 truncate max-w-[260px] sm:max-w-none" aria-current="page">{title}</span>
     </nav>
 
     <!-- Cabecera del artículo -->
-    <header class="mb-8 pb-8 border-b border-gray-800">
+    <header class="mb-8 pb-8 border-b border-white/[0.08]">
       <div class="flex flex-wrap items-center gap-2 mb-4">
-        <span class={`text-xs font-medium px-2 py-1 rounded ${dificultadColor[dificultad]}`}>
-          {dificultadLabel[dificultad]}
+        <span class={`text-xs font-medium px-2 py-1 rounded ${DIFICULTAD_COLORS[dificultad]}`}>
+          {DIFICULTAD_LABELS[dificultad]}
         </span>
         {!resuelto && (
           <span class="text-xs font-medium px-2 py-1 rounded text-orange-400 bg-orange-400/10">
@@ -67,13 +48,13 @@ const fechaFormateada = fecha.toLocaleDateString('es-ES', {
         )}
       </div>
 
-      <h1 class="text-3xl font-bold text-white mb-3 leading-tight">{title}</h1>
-      <p class="text-gray-400 text-lg mb-5">{description}</p>
+      <h1 class="text-4xl font-bold text-white mb-4 leading-[1.1] tracking-tight">{title}</h1>
+      <p class="text-gray-400 text-lg mb-6 leading-relaxed">{description}</p>
 
-      <div class="flex flex-wrap gap-4 text-sm text-gray-500">
+      <div class="flex flex-wrap gap-4 text-xs font-mono text-gray-500 tabular-nums">
         <span>{fechaFormateada}</span>
-        <span>·</span>
-        <span>Versiones: {servicenow_version.join(', ')}</span>
+        <span aria-hidden="true">·</span>
+        <span>{servicenow_version.join(', ')}</span>
       </div>
 
       <div class="flex flex-wrap gap-2 mt-4">
@@ -84,14 +65,27 @@ const fechaFormateada = fecha.toLocaleDateString('es-ES', {
     </header>
 
     <!-- Contenido del artículo -->
-    <div class="prose prose-invert prose-headings:text-white prose-a:text-blue-400 prose-code:text-blue-300 prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-800 max-w-none">
+    <div class="prose prose-invert max-w-none
+      prose-headings:text-white prose-headings:tracking-tight prose-headings:font-bold
+      prose-h2:text-xl prose-h2:mt-12 prose-h2:mb-4
+      prose-h3:text-lg prose-h3:mt-8 prose-h3:mb-3 prose-h3:font-semibold
+      prose-p:text-gray-300 prose-p:leading-[1.8]
+      prose-li:text-gray-300 prose-li:leading-[1.75]
+      prose-strong:text-gray-100 prose-strong:font-semibold
+      prose-a:text-blue-400 prose-a:no-underline prose-a:font-normal
+      prose-code:text-blue-300 prose-code:font-mono prose-code:text-[0.875em] prose-code:font-normal
+      prose-pre:bg-[#0d0d0d] prose-pre:border prose-pre:border-white/[0.07] prose-pre:rounded-lg
+      prose-blockquote:border-l-white/[0.12] prose-blockquote:text-gray-400 prose-blockquote:not-italic prose-blockquote:font-normal
+      prose-hr:border-white/[0.08]
+      prose-table:text-sm prose-thead:text-gray-400 prose-td:text-gray-300
+    ">
       <slot />
     </div>
 
     <!-- Pie del artículo -->
-    <footer class="mt-12 pt-8 border-t border-gray-800">
+    <footer class="mt-12 pt-8 border-t border-white/[0.08]">
       <a href={`/categoria/${categoria}`} class="text-blue-400 hover:text-blue-300 transition-colors text-sm">
-        ← Ver más artículos de {categoriaLabel[categoria] ?? categoria}
+        ← Ver más artículos de {CATEGORIA_LABELS[categoria] ?? categoria}
       </a>
     </footer>
   </article>
