@@ -53,7 +53,7 @@ Esto vuelve a una lista, pero pierde el filtro activo. El usuario aterriza en la
 **Reutilizar `gsftSubmit()` como si la lista fuera un formulario**
 
 ```javascript
-gsftSubmit(null, g_form.getFormElement(), 'confirmar_independencia');
+gsftSubmit(null, g_form.getFormElement(), 'cerrar_tarea');
 ```
 
 En lista no existe `g_form`. `gsftSubmit()` es válido para formulario, no para acciones multi-registro sobre `g_list`.
@@ -82,20 +82,20 @@ El patrón que sí funciona es una **UI Action híbrida**:
 
 | Campo | Valor |
 |-------|-------|
-| Action name | `confirmar_independencia` |
+| Action name | `cerrar_tarea` |
 | Client | `true` |
 | Form button | `true` |
 | List action | `true` |
 | List choice | `true` |
 | Show multiple update | `true` |
-| Onclick | `return confirmarIndependencia();` |
+| Onclick | `return cerrarTarea();` |
 
 ### Script de la UI Action
 
 ```javascript
-function confirmarIndependencia() {
+function cerrarTarea() {
     if (typeof g_form != 'undefined') {
-        gsftSubmit(null, g_form.getFormElement(), 'confirmar_independencia');
+        gsftSubmit(null, g_form.getFormElement(), 'cerrar_tarea');
         return false;
     }
 
@@ -106,9 +106,9 @@ function confirmarIndependencia() {
         return false;
     }
 
-    var ga = new GlideAjax('x_kpm24_cce_audit.CCEAuditFlowSyncAjax');
-    ga.addParam('sysparm_name', 'confirmarIndependencia');
-    ga.addParam('sysparm_task_id', taskIds);
+    var ga = new GlideAjax('TaskBulkProcessorAjax');
+    ga.addParam('sysparm_name', 'cerrarTarea');
+    ga.addParam('sysparm_task_ids', taskIds);
 
     ga.getXMLAnswer(function() {
         // Recarga la lista actual sin perder filtro, vista ni paginación.
@@ -123,22 +123,14 @@ if (typeof window == 'undefined')
     serverResolve();
 
 function serverResolve() {
-    function log(tag, message) {
-        if (gs.getProperty('x_kpm24_cce_audit.cce_audit_debug') == 'true') {
-            gs.info('[CCE AUDIT][' + tag + '] ' + message);
-        }
-    }
-
     if (current.assigned_to.nil()) {
         current.assigned_to = gs.getUserID();
     }
 
-    current.validation_status = 'independent';
-    current.state = '4';
+    current.state = '3'; // Closed Complete
     current.update();
 
-    log('CONFIRMAR_INDEPENDENCIA', 'Tarea ' + current.number + ' cerrada como independiente');
-    gs.addInfoMessage('Tarea ' + current.number + ' cerrada como independiente.');
+    gs.addInfoMessage('Tarea ' + current.number + ' cerrada correctamente.');
     action.setRedirectURL(current);
 }
 ```
@@ -147,24 +139,18 @@ El detalle importante es la bifurcación de contexto. El mismo artefacto resuelv
 
 | Contexto | Ejecución | Resultado |
 |----------|-----------|-----------|
-| Formulario | `confirmarIndependencia()` -> `gsftSubmit()` -> `serverResolve()` | Actualiza `current` y vuelve al registro |
-| Lista | `confirmarIndependencia()` -> GlideAjax | Procesa varios `sys_id` y recarga la lista actual |
+| Formulario | `cerrarTarea()` -> `gsftSubmit()` -> `serverResolve()` | Actualiza `current` y vuelve al registro |
+| Lista | `cerrarTarea()` -> GlideAjax | Procesa varios `sys_id` y recarga la lista actual |
 
 ### Método GlideAjax en el Script Include
 
-El método debe vivir en un Script Include marcado como `Client callable`. En este caso se añade a `CCEAuditFlowSyncAjax`.
+El método debe vivir en un Script Include marcado como `Client callable`. En este ejemplo se llama `TaskBulkProcessorAjax`.
 
 `g_list.getChecked()` devuelve una cadena con varios `sys_id` separados por comas. Si el servidor hace `gr.get(taskIds)`, solo procesará el primero. Hay que separar la cadena e iterar.
 
 ```javascript
-confirmarIndependencia: function() {
-    var taskIds = this.getParameter('sysparm_task_id');
-
-    function log(tag, message) {
-        if (gs.getProperty('x_kpm24_cce_audit.cce_audit_debug') == 'true') {
-            gs.info('[CCE AUDIT][' + tag + '] ' + message);
-        }
-    }
+cerrarTarea: function() {
+    var taskIds = this.getParameter('sysparm_task_ids');
 
     if (!taskIds) {
         return '0';
@@ -177,9 +163,9 @@ confirmarIndependencia: function() {
         var id = ids[i].trim();
         if (!id) continue;
 
-        var tarea = new GlideRecord('x_kpm24_cce_audit_request_task');
+        var tarea = new GlideRecord('sc_task');
         if (!tarea.get(id)) {
-            log('CONFIRMAR_INDEPENDENCIA', 'Tarea no encontrada: ' + id);
+            gs.warn('TaskBulkProcessorAjax: registro no encontrado: ' + id);
             continue;
         }
 
@@ -187,14 +173,8 @@ confirmarIndependencia: function() {
             tarea.assigned_to = gs.getUserID();
         }
 
-        tarea.validation_status = 'independent';
-        tarea.state = '4';
+        tarea.state = '3'; // Closed Complete
         tarea.update();
-
-        log(
-            'CONFIRMAR_INDEPENDENCIA',
-            'Tarea ' + tarea.number + ' cerrada como independiente'
-        );
 
         procesados++;
     }
