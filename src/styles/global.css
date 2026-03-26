@@ -65,7 +65,8 @@ body > :where(header, main, footer) {
   transition: filter 180ms ease, opacity 180ms ease;
 }
 
-body[data-search-open='true'] > :where(header, main, footer) {
+body[data-search-open='true'] > :where(header, main, footer),
+body[data-mobile-menu-open='true'] > :where(header, main, footer) {
   filter: saturate(0.82) brightness(0.86);
 }
 

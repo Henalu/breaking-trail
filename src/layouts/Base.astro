@@ -20,6 +20,7 @@ const categorias = slugsConArticulos
   .sort((a, b) => a.label.localeCompare(b.label))
 
 const currentPath = Astro.url.pathname
+const articleCount = articles.length
 ---
 
 <!doctype html>
@@ -49,10 +50,11 @@ const currentPath = Astro.url.pathname
             <SearchPalette />
             <button
               id="menu-toggle"
-              class="md:hidden shrink-0 text-gray-400 hover:text-white transition-colors p-1 cursor-pointer"
+              type="button"
+              class="md:hidden flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.03] text-gray-500 transition-[background-color,border-color,color] duration-150 hover:border-white/[0.12] hover:bg-white/[0.06] hover:text-gray-300 cursor-pointer"
               aria-label="Abrir menú de categorías"
               aria-expanded="false"
-              aria-controls="mobile-menu"
+              aria-controls="mobile-menu-overlay"
             >
               <svg id="icon-open" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
@@ -86,22 +88,103 @@ const currentPath = Astro.url.pathname
         </div>
 
         <!-- Mobile menu -->
-        <nav id="mobile-menu" class="hidden md:hidden flex-col pb-3" aria-label="Categorías">
-          {categorias.map(cat => (
-            <a
-              href={`/categoria/${cat.slug}`}
-              class:list={[
-                'block text-sm px-2 py-2.5 rounded-md transition-colors',
-                currentPath === `/categoria/${cat.slug}`
-                  ? 'text-white bg-white/[0.08]'
-                  : 'text-gray-400 hover:text-white hover:bg-white/[0.06]'
-              ]}
-              aria-current={currentPath === `/categoria/${cat.slug}` ? 'page' : undefined}
+        <div
+          id="mobile-menu-overlay"
+          class="hidden md:hidden fixed inset-0 z-[70] isolate opacity-0 transition-opacity duration-200 ease-out"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menú de navegación"
+          aria-hidden="true"
+        >
+          <div id="mobile-menu-backdrop" class="absolute inset-0 bg-[#07090d]/56 backdrop-blur-[6px] backdrop-saturate-[0.84]" aria-hidden="true"></div>
+
+          <div class="pointer-events-none relative z-10 flex min-h-full px-3 py-3">
+            <div
+              id="mobile-menu-panel"
+              class="pointer-events-auto flex flex-1 flex-col overflow-hidden rounded-[24px] border border-white/[0.08] bg-[#0d1014]/96 opacity-0 translate-y-3 shadow-[0_28px_90px_rgba(0,0,0,0.58),0_12px_32px_rgba(0,0,0,0.24)] ring-1 ring-white/[0.03] transition-[opacity,transform] duration-200 ease-out"
             >
-              {cat.label}
-            </a>
-          ))}
-        </nav>
+              <div class="flex items-start justify-between gap-4 px-5 pb-5 pt-5">
+                <div class="min-w-0">
+                  <span class="text-[10px] font-mono uppercase tracking-[0.24em] text-gray-600">Breaking Trail</span>
+                  <a href="/" class="mt-2 block text-lg font-semibold tracking-tight text-white" data-mobile-menu-link>
+                    Referencia técnica ServiceNow
+                  </a>
+                  <p class="mt-1 max-w-[18rem] text-sm leading-6 text-gray-500">
+                    {articleCount} artículos en español sobre problemas reales de producción.
+                  </p>
+                </div>
+
+                <button
+                  id="mobile-menu-close"
+                  type="button"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-gray-500 transition-[background-color,border-color,color] duration-150 hover:border-white/[0.12] hover:bg-white/[0.06] hover:text-gray-300 cursor-pointer"
+                  aria-label="Cerrar menú de navegación"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="px-4">
+                <button
+                  id="mobile-menu-search"
+                  type="button"
+                  class="group flex min-h-14 w-full items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-left transition-[background-color,border-color,color] duration-150 hover:border-white/[0.12] hover:bg-white/[0.05] cursor-pointer"
+                >
+                  <span class="flex items-center gap-3">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-gray-500 transition-colors group-hover:text-gray-300">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                      </svg>
+                    </span>
+                    <span>
+                      <span class="block text-sm font-medium text-gray-100">Buscar artículos</span>
+                      <span class="mt-0.5 block text-xs text-gray-500">Acceso rápido al índice y categorías</span>
+                    </span>
+                  </span>
+                  <span class="text-xs font-mono text-gray-600">abrir</span>
+                </button>
+              </div>
+
+              <div class="flex-1 overflow-y-auto px-3 pb-3 pt-6">
+                <div class="px-2 pb-2">
+                  <span class="text-[10px] font-mono uppercase tracking-[0.24em] text-gray-600">Categorías</span>
+                </div>
+
+                <nav id="mobile-menu" class="flex flex-col gap-1" aria-label="Categorías">
+                  {categorias.map(cat => (
+                    <a
+                      href={`/categoria/${cat.slug}`}
+                      class:list={[
+                        'group flex min-h-12 items-center justify-between gap-3 rounded-xl px-3.5 py-3 text-sm transition-[background-color,color,border-color] duration-150',
+                        currentPath === `/categoria/${cat.slug}`
+                          ? 'bg-white/[0.08] text-white'
+                          : 'text-gray-300 hover:bg-white/[0.05] hover:text-white'
+                      ]}
+                      aria-current={currentPath === `/categoria/${cat.slug}` ? 'page' : undefined}
+                      data-mobile-menu-link
+                    >
+                      <span class="font-medium tracking-tight">{cat.label}</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class:list={[
+                        'shrink-0 transition-colors',
+                        currentPath === `/categoria/${cat.slug}` ? 'text-white/70' : 'text-gray-600 group-hover:text-gray-400'
+                      ]} aria-hidden="true">
+                        <path d="M5 12h14"/><path d="m13 5 7 7-7 7"/>
+                      </svg>
+                    </a>
+                  ))}
+                </nav>
+              </div>
+
+              <div class="border-t border-white/[0.08] bg-white/[0.02] px-5 py-4">
+                <p class="text-[11px] font-mono tracking-wide text-gray-600">
+                  Explora por categoría o abre búsqueda para ir directo a un problema concreto.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
       </div>
     </header>
@@ -119,28 +202,148 @@ const currentPath = Astro.url.pathname
 
     <script is:inline>
       const toggle = document.getElementById('menu-toggle')
-      const menu = document.getElementById('mobile-menu')
+      const overlay = document.getElementById('mobile-menu-overlay')
+      const panel = document.getElementById('mobile-menu-panel')
+      const backdrop = document.getElementById('mobile-menu-backdrop')
+      const closeButton = document.getElementById('mobile-menu-close')
+      const searchButton = document.getElementById('mobile-menu-search')
       const iconOpen = document.getElementById('icon-open')
       const iconClose = document.getElementById('icon-close')
+      const menuLinks = Array.from(document.querySelectorAll('[data-mobile-menu-link]'))
+      const desktopMedia = window.matchMedia('(min-width: 768px)')
+      let lastFocusedElement = null
+      let closeTimer = null
 
-      toggle.addEventListener('click', () => {
-        const isOpen = !menu.classList.contains('hidden')
-        menu.classList.toggle('hidden', isOpen)
-        menu.classList.toggle('flex', !isOpen)
-        iconOpen.classList.toggle('hidden', !isOpen)
-        iconClose.classList.toggle('hidden', isOpen)
-        toggle.setAttribute('aria-expanded', String(!isOpen))
+      if (overlay && overlay.parentElement !== document.body) {
+        document.body.appendChild(overlay)
+      }
+
+      function setPageChromeInert(isInert) {
+        document.querySelectorAll('body > header, body > main, body > footer').forEach(element => {
+          if (isInert) element.setAttribute('inert', '')
+          else element.removeAttribute('inert')
+        })
+      }
+
+      function setToggleState(isOpen) {
+        iconOpen?.classList.toggle('hidden', isOpen)
+        iconClose?.classList.toggle('hidden', !isOpen)
+        toggle?.setAttribute('aria-expanded', String(isOpen))
+      }
+
+      function finishClose({ restoreFocus = true, onClosed } = {}) {
+        overlay?.classList.add('hidden')
+        overlay?.setAttribute('aria-hidden', 'true')
+        delete document.body.dataset.mobileMenuOpen
+        document.body.style.overflow = ''
+        document.documentElement.style.overflow = ''
+        setPageChromeInert(false)
+        setToggleState(false)
+        closeTimer = null
+
+        if (restoreFocus) {
+          ;(lastFocusedElement || toggle)?.focus()
+        }
+
+        onClosed?.()
+      }
+
+      function closeMenu({ restoreFocus = true, immediate = false, onClosed } = {}) {
+        if (!overlay || overlay.classList.contains('hidden')) {
+          onClosed?.()
+          return
+        }
+
+        if (closeTimer) clearTimeout(closeTimer)
+
+        overlay.classList.add('opacity-0')
+        panel?.classList.add('opacity-0', 'translate-y-3')
+        panel?.classList.remove('opacity-100', 'translate-y-0')
+
+        if (immediate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          finishClose({ restoreFocus, onClosed })
+          return
+        }
+
+        closeTimer = window.setTimeout(() => {
+          finishClose({ restoreFocus, onClosed })
+        }, 180)
+      }
+
+      function openMenu() {
+        if (!overlay || desktopMedia.matches) return
+
+        if (closeTimer) {
+          clearTimeout(closeTimer)
+          closeTimer = null
+        }
+
+        lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : toggle
+
+        overlay.classList.remove('hidden')
+        overlay.setAttribute('aria-hidden', 'false')
+        document.body.dataset.mobileMenuOpen = 'true'
+        document.body.style.overflow = 'hidden'
+        document.documentElement.style.overflow = 'hidden'
+        setPageChromeInert(true)
+        setToggleState(true)
+
+        requestAnimationFrame(() => {
+          overlay.classList.remove('opacity-0')
+          panel?.classList.remove('opacity-0', 'translate-y-3')
+          panel?.classList.add('opacity-100', 'translate-y-0')
+          closeButton?.focus()
+        })
+      }
+
+      toggle?.addEventListener('click', () => {
+        if (!overlay || overlay.classList.contains('hidden')) openMenu()
+        else closeMenu()
       })
 
-      document.addEventListener('click', (e) => {
-        if (!toggle.contains(e.target) && !menu.contains(e.target)) {
-          menu.classList.add('hidden')
-          menu.classList.remove('flex')
-          iconOpen.classList.remove('hidden')
-          iconClose.classList.add('hidden')
-          toggle.setAttribute('aria-expanded', 'false')
+      closeButton?.addEventListener('click', () => closeMenu())
+      backdrop?.addEventListener('click', () => closeMenu())
+
+      searchButton?.addEventListener('click', () => {
+        closeMenu({
+          restoreFocus: false,
+          onClosed: () => document.dispatchEvent(new CustomEvent('bt:open-search'))
+        })
+      })
+
+      menuLinks.forEach(link => {
+        link.addEventListener('click', () => closeMenu({ restoreFocus: false, immediate: true }))
+      })
+
+      document.addEventListener('keydown', (e) => {
+        if (overlay?.classList.contains('hidden')) return
+
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          closeMenu()
+          return
+        }
+
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+          e.preventDefault()
+          closeMenu({
+            restoreFocus: false,
+            onClosed: () => document.dispatchEvent(new CustomEvent('bt:open-search'))
+          })
         }
       })
+
+      const handleDesktopChange = (event) => {
+        if (event.matches) {
+          closeMenu({ restoreFocus: false, immediate: true })
+        }
+      }
+
+      if (desktopMedia.addEventListener) {
+        desktopMedia.addEventListener('change', handleDesktopChange)
+      } else {
+        desktopMedia.addListener(handleDesktopChange)
+      }
     </script>
 
   </body>

@@ -322,6 +322,9 @@ const articleIndex = articles.map(a => ({
   // --- Event listeners ---
   trigger.addEventListener('click', openPalette)
   backdrop.addEventListener('click', closePalette)
+  document.addEventListener('bt:open-search', () => {
+    if (palette.classList.contains('hidden')) openPalette()
+  })
 
   // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
