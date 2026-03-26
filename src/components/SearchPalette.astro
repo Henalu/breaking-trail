@@ -1,0 +1,418 @@
+---
+import { getCollection } from 'astro:content'
+import { CATEGORIA_LABELS } from '../lib/categories'
+
+// Build article index at build time for instant results
+const articles = (await getCollection('articles'))
+  .sort((a, b) => b.data.fecha.getTime() - a.data.fecha.getTime())
+
+// Get categories that have articles
+const slugsConArticulos = [...new Set(articles.map(a => a.data.categoria))]
+const categorias = slugsConArticulos
+  .map(slug => ({ slug, label: CATEGORIA_LABELS[slug] ?? slug }))
+  .sort((a, b) => a.label.localeCompare(b.label))
+
+// Pre-build article data for client-side search
+const articleIndex = articles.map(a => ({
+  slug: a.slug,
+  title: a.data.title,
+  description: a.data.description,
+  categoria: a.data.categoria,
+  categoriaLabel: CATEGORIA_LABELS[a.data.categoria] ?? a.data.categoria,
+  tags: a.data.tags,
+  fecha: a.data.fecha.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' }),
+}))
+---
+
+<!-- Search trigger button (compact, for header) -->
+<button
+  id="search-trigger"
+  type="button"
+  class="flex items-center gap-2 h-8 px-3 rounded-md border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.12] transition-[background-color,border-color] duration-150 text-gray-500 text-sm cursor-pointer group"
+  aria-label="Buscar artículos (⌘K)"
+  aria-haspopup="dialog"
+  aria-controls="search-palette"
+  aria-expanded="false"
+>
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-gray-500 group-hover:text-gray-400 transition-colors" aria-hidden="true">
+    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+  </svg>
+  <span class="hidden sm:inline text-xs text-gray-500 group-hover:text-gray-400 transition-colors">Buscar...</span>
+  <kbd class="hidden sm:inline-flex items-center gap-0.5 ml-1 text-[10px] font-mono text-gray-600 bg-white/[0.06] px-1.5 py-0.5 rounded border border-white/[0.08]">
+    <span class="text-[10px]">⌘</span>K
+  </kbd>
+</button>
+
+<!-- Search palette overlay -->
+<div id="search-palette" class="fixed inset-0 z-[80] hidden isolate overflow-y-auto" role="dialog" aria-modal="true" aria-label="Buscar artículos">
+  <!-- Backdrop -->
+  <div id="search-backdrop" class="absolute inset-0 z-0 bg-[#07090d]/58 backdrop-blur-[6px] backdrop-saturate-[0.82]" aria-hidden="true"></div>
+  <div class="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_bottom,rgba(7,9,13,0.04),rgba(7,9,13,0.18))]" aria-hidden="true"></div>
+
+  <!-- Palette panel -->
+  <div class="pointer-events-none relative z-10 flex min-h-full justify-center px-4 pb-6 pt-[clamp(4.75rem,12vh,7.5rem)] sm:px-6">
+    <div id="search-panel" class="pointer-events-auto flex w-full max-w-[620px] max-h-[min(620px,calc(100vh-6rem))] flex-col overflow-hidden rounded-[20px] border border-white/[0.08] bg-[#0f1115]/96 shadow-[0_30px_100px_rgba(0,0,0,0.62),0_12px_38px_rgba(0,0,0,0.28)] ring-1 ring-white/[0.03]">
+
+      <!-- Search input row -->
+      <div class="flex items-center gap-3 border-b border-white/[0.08] bg-white/[0.015] px-4">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-gray-500" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Buscar artículos..."
+          autocomplete="off"
+          spellcheck="false"
+          class="flex-1 bg-transparent text-sm text-gray-100 placeholder-gray-500 py-3.5 outline-none"
+        />
+        <kbd class="text-[10px] font-mono text-gray-600 bg-white/[0.06] px-1.5 py-0.5 rounded border border-white/[0.08]">ESC</kbd>
+      </div>
+
+      <!-- Results area (scrollable) -->
+      <div id="search-results" class="overflow-y-auto overscroll-contain flex-1">
+        <!-- Default state: recent searches + categories -->
+        <div id="search-default">
+          <!-- Recent searches (populated by JS) -->
+          <div id="search-recent" class="hidden">
+            <div class="px-4 pt-3 pb-1.5">
+              <span class="text-[11px] font-mono text-gray-500 uppercase tracking-widest">Búsquedas Recientes</span>
+            </div>
+            <div id="search-recent-list"></div>
+          </div>
+
+          <!-- Categories -->
+          <div class="px-4 pt-3 pb-1.5">
+            <span class="text-[11px] font-mono text-gray-500 uppercase tracking-widest">Categorías</span>
+          </div>
+          <div id="search-categories">
+            {categorias.map(cat => (
+              <a
+                href={`/categoria/${cat.slug}`}
+                class="search-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/[0.05] transition-colors cursor-pointer"
+                data-search-item
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-gray-600" aria-hidden="true">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span>{cat.label}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Search results (populated by JS) -->
+        <div id="search-matches" class="hidden"></div>
+
+        <!-- No results state -->
+        <div id="search-empty" class="hidden px-4 py-8 text-center">
+          <p class="text-gray-500 text-sm">Sin resultados para tu búsqueda</p>
+          <p class="text-gray-600 text-xs mt-1">Intenta con otros términos</p>
+        </div>
+      </div>
+
+      <!-- Footer hints -->
+      <div class="flex items-center gap-4 border-t border-white/[0.08] bg-white/[0.02] px-4 py-2.5 text-[10px] font-mono text-gray-600">
+        <span class="flex items-center gap-1">
+          <kbd class="bg-white/[0.06] px-1 py-0.5 rounded border border-white/[0.08]">↑↓</kbd>
+          navegar
+        </span>
+        <span class="flex items-center gap-1">
+          <kbd class="bg-white/[0.06] px-1 py-0.5 rounded border border-white/[0.08]">↵</kbd>
+          abrir
+        </span>
+        <span class="flex items-center gap-1">
+          <kbd class="bg-white/[0.06] px-1 py-0.5 rounded border border-white/[0.08]">esc</kbd>
+          cerrar
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ articleIndex, categorias }}>
+(function() {
+  const palette = document.getElementById('search-palette')
+  const trigger = document.getElementById('search-trigger')
+  const backdrop = document.getElementById('search-backdrop')
+  const input = document.getElementById('search-input')
+  const defaultView = document.getElementById('search-default')
+  const matchesView = document.getElementById('search-matches')
+  const emptyView = document.getElementById('search-empty')
+  const recentSection = document.getElementById('search-recent')
+  const recentList = document.getElementById('search-recent-list')
+
+  if (!palette || !trigger || !backdrop || !input || !defaultView || !matchesView || !emptyView || !recentSection || !recentList) return
+
+  if (palette.parentElement !== document.body) {
+    document.body.appendChild(palette)
+  }
+
+  const RECENT_KEY = 'bt-recent-searches'
+  const MAX_RECENT = 4
+  let activeIndex = -1
+  let lastFocusedElement = null
+
+  function setPageChromeInert(isInert) {
+    document.querySelectorAll('body > header, body > main, body > footer').forEach(element => {
+      if (isInert) element.setAttribute('inert', '')
+      else element.removeAttribute('inert')
+    })
+  }
+
+  // --- Recent searches ---
+  function getRecent() {
+    try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]') } catch { return [] }
+  }
+
+  function addRecent(term) {
+    if (!term || term.length < 2) return
+    let recent = getRecent().filter(r => r !== term)
+    recent.unshift(term)
+    if (recent.length > MAX_RECENT) recent = recent.slice(0, MAX_RECENT)
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(recent)) } catch {}
+  }
+
+  function renderRecent() {
+    const recent = getRecent()
+    if (recent.length === 0) {
+      recentSection.classList.add('hidden')
+      return
+    }
+    recentSection.classList.remove('hidden')
+    recentList.innerHTML = recent.map(term =>
+      `<button class="search-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-400 hover:bg-white/[0.05] transition-colors cursor-pointer w-full text-left" data-search-item data-recent-term="${term.replace(/"/g, '&quot;')}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-gray-600" aria-hidden="true">
+          <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+        </svg>
+        <span>${term}</span>
+      </button>`
+    ).join('')
+
+    recentList.querySelectorAll('[data-recent-term]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        input.value = btn.dataset.recentTerm
+        input.dispatchEvent(new Event('input'))
+      })
+    })
+  }
+
+  // --- Fuzzy search on pre-built index ---
+  function searchArticles(query) {
+    const q = query.toLowerCase().trim()
+    if (!q) return []
+
+    return articleIndex
+      .map(article => {
+        let score = 0
+        const titleLower = article.title.toLowerCase()
+        const descLower = article.description.toLowerCase()
+        const tagsStr = article.tags.join(' ').toLowerCase()
+        const catLower = article.categoriaLabel.toLowerCase()
+
+        // Title match (strongest signal)
+        if (titleLower.includes(q)) score += 10
+        // Word-start match in title
+        if (titleLower.split(/\s+/).some(w => w.startsWith(q))) score += 5
+        // Description match
+        if (descLower.includes(q)) score += 3
+        // Tag match
+        if (tagsStr.includes(q)) score += 4
+        // Category match
+        if (catLower.includes(q)) score += 2
+
+        // Multi-word: all words must match somewhere
+        const words = q.split(/\s+/).filter(w => w.length > 1)
+        if (words.length > 1) {
+          const allText = `${titleLower} ${descLower} ${tagsStr} ${catLower}`
+          const allMatch = words.every(w => allText.includes(w))
+          if (allMatch) score += 6
+          else score = 0 // If multi-word and not all match, discard
+        }
+
+        return { ...article, score }
+      })
+      .filter(a => a.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8)
+  }
+
+  function renderResults(results) {
+    matchesView.innerHTML = results.map(article =>
+      `<a href="/articulos/${article.slug}" class="search-item block px-4 py-3 hover:bg-white/[0.05] transition-colors cursor-pointer" data-search-item>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-sm font-medium text-gray-200">${article.title}</span>
+        </div>
+        <p class="text-xs text-gray-500 line-clamp-1">${article.description}</p>
+        <div class="flex items-center gap-2 mt-1.5">
+          <span class="text-[10px] font-mono text-gray-600">${article.categoriaLabel}</span>
+          <span class="text-gray-700 text-[10px]" aria-hidden="true">·</span>
+          <span class="text-[10px] font-mono text-gray-600 tabular-nums">${article.fecha}</span>
+        </div>
+      </a>`
+    ).join('')
+  }
+
+  // --- Keyboard navigation ---
+  function getAllItems() {
+    return Array.from(document.querySelectorAll('#search-results [data-search-item]:not(.hidden [data-search-item])'))
+  }
+
+  function setActive(index) {
+    const items = getAllItems()
+    items.forEach(el => el.classList.remove('bg-white/[0.05]'))
+    activeIndex = index
+    if (index >= 0 && index < items.length) {
+      items[index].classList.add('bg-white/[0.05]')
+      items[index].scrollIntoView({ block: 'nearest' })
+    }
+  }
+
+  // --- Open / close ---
+  function openPalette() {
+    lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : trigger
+    palette.classList.remove('hidden')
+    document.body.dataset.searchOpen = 'true'
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+    trigger.setAttribute('aria-expanded', 'true')
+    setPageChromeInert(true)
+    renderRecent()
+    input.value = ''
+    showDefault()
+    activeIndex = -1
+    // Small delay to ensure DOM is ready
+    requestAnimationFrame(() => input.focus())
+  }
+
+  function closePalette() {
+    palette.classList.add('hidden')
+    delete document.body.dataset.searchOpen
+    document.body.style.overflow = ''
+    document.documentElement.style.overflow = ''
+    trigger.setAttribute('aria-expanded', 'false')
+    setPageChromeInert(false)
+    input.value = ''
+    activeIndex = -1
+
+    if (document.activeElement instanceof HTMLElement && palette.contains(document.activeElement)) {
+      ;(lastFocusedElement || trigger).focus()
+    }
+  }
+
+  function showDefault() {
+    defaultView.classList.remove('hidden')
+    matchesView.classList.add('hidden')
+    emptyView.classList.add('hidden')
+  }
+
+  function showResults(results) {
+    defaultView.classList.add('hidden')
+    emptyView.classList.add('hidden')
+    matchesView.classList.remove('hidden')
+    renderResults(results)
+  }
+
+  function showEmpty() {
+    defaultView.classList.add('hidden')
+    matchesView.classList.add('hidden')
+    emptyView.classList.remove('hidden')
+  }
+
+  // --- Event listeners ---
+  trigger.addEventListener('click', openPalette)
+  backdrop.addEventListener('click', closePalette)
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    // Open with Cmd/Ctrl + K
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault()
+      if (palette.classList.contains('hidden')) {
+        openPalette()
+      } else {
+        closePalette()
+      }
+      return
+    }
+
+    // Only handle these when palette is open
+    if (palette.classList.contains('hidden')) return
+
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      closePalette()
+      return
+    }
+
+    const items = getAllItems()
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActive(activeIndex < items.length - 1 ? activeIndex + 1 : 0)
+      return
+    }
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActive(activeIndex > 0 ? activeIndex - 1 : items.length - 1)
+      return
+    }
+
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      if (activeIndex >= 0 && activeIndex < items.length) {
+        const item = items[activeIndex]
+        // Save search term if there's a query
+        if (input.value.trim()) addRecent(input.value.trim())
+        if (item.href) {
+          window.location.href = item.href
+        } else if (item.dataset.recentTerm) {
+          input.value = item.dataset.recentTerm
+          input.dispatchEvent(new Event('input'))
+        } else {
+          item.click()
+        }
+      } else if (input.value.trim()) {
+        // If no item selected but there are results, open first
+        const firstLink = matchesView.querySelector('a[data-search-item]')
+        if (firstLink) {
+          addRecent(input.value.trim())
+          window.location.href = firstLink.href
+        }
+      }
+      return
+    }
+  })
+
+  // Search input handler
+  let debounceTimer
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer)
+    const query = input.value.trim()
+    activeIndex = -1
+
+    if (!query) {
+      showDefault()
+      return
+    }
+
+    debounceTimer = setTimeout(() => {
+      const results = searchArticles(query)
+      if (results.length > 0) {
+        showResults(results)
+      } else {
+        showEmpty()
+      }
+    }, 80)
+  })
+
+  // Click on result links — save to recent
+  matchesView.addEventListener('click', (e) => {
+    const link = e.target.closest('a')
+    if (link && input.value.trim()) {
+      addRecent(input.value.trim())
+    }
+  })
+})()
+</script>

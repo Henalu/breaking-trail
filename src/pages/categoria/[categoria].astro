@@ -42,22 +42,20 @@ const titulo = CATEGORIA_LABELS[categoria] ?? categoria
       <a href="/" class="text-blue-400 hover:text-blue-300 transition-colors text-sm">← Volver al inicio</a>
     </div>
   ) : (
-    <ul class="space-y-3">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
       {articulos.map(articulo => (
-        <li>
-          <ArticleCard
-            slug={articulo.slug}
-            title={articulo.data.title}
-            description={articulo.data.description}
-            categoria={articulo.data.categoria}
-            dificultad={articulo.data.dificultad}
-            fecha={articulo.data.fecha}
-            servicenow_version={articulo.data.servicenow_version}
-            resuelto={articulo.data.resuelto}
-          />
-        </li>
+        <ArticleCard
+          slug={articulo.slug}
+          title={articulo.data.title}
+          description={articulo.data.description}
+          categoria={articulo.data.categoria}
+          dificultad={articulo.data.dificultad}
+          fecha={articulo.data.fecha}
+          servicenow_version={articulo.data.servicenow_version}
+          resuelto={articulo.data.resuelto}
+        />
       ))}
-    </ul>
+    </div>
   )}
   </div>
 </Base>

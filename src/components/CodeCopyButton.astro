@@ -1,0 +1,45 @@
+---
+// Adds copy buttons to all code blocks in the article
+// No props needed — purely client-side enhancement
+---
+
+<script is:inline>
+(function() {
+  const codeBlocks = document.querySelectorAll('.prose pre')
+  if (!codeBlocks.length) return
+
+  codeBlocks.forEach(pre => {
+    // Make pre relative for button positioning
+    pre.style.position = 'relative'
+
+    const button = document.createElement('button')
+    button.className = 'copy-btn absolute top-2 right-2 p-1.5 rounded-md bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] text-gray-500 hover:text-gray-300 transition-all duration-150 opacity-0 cursor-pointer'
+    button.setAttribute('aria-label', 'Copiar código')
+    button.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`
+
+    button.addEventListener('click', async () => {
+      const code = pre.querySelector('code')
+      if (!code) return
+
+      try {
+        await navigator.clipboard.writeText(code.textContent || '')
+        button.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+        button.classList.add('text-green-400')
+        button.classList.remove('text-gray-500')
+
+        setTimeout(() => {
+          button.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`
+          button.classList.remove('text-green-400')
+          button.classList.add('text-gray-500')
+        }, 2000)
+      } catch {}
+    })
+
+    pre.appendChild(button)
+
+    // Show on hover
+    pre.addEventListener('mouseenter', () => button.style.opacity = '1')
+    pre.addEventListener('mouseleave', () => button.style.opacity = '0')
+  })
+})()
+</script>

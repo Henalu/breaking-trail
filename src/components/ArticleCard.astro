@@ -17,7 +17,7 @@ const { slug, title, description, categoria, dificultad, fecha, servicenow_versi
 
 <a
   href={`/articulos/${slug}`}
-  class="block p-5 rounded-lg border border-white/[0.07] hover:border-white/[0.16] hover:bg-white/[0.03] hover:-translate-y-px active:translate-y-0 active:bg-white/[0.04] transition-[border-color,background-color,transform,color] duration-150 group"
+  class="flex flex-col p-5 rounded-lg border border-white/[0.07] hover:border-white/[0.16] hover:bg-white/[0.03] hover:-translate-y-px active:translate-y-0 active:bg-white/[0.04] transition-[border-color,background-color,transform,color] duration-150 group h-full"
 >
   <!-- Metadata superior: categoría + dificultad -->
   <div class="flex items-center gap-2 mb-3 flex-wrap">
@@ -39,10 +39,10 @@ const { slug, title, description, categoria, dificultad, fecha, servicenow_versi
   </h2>
 
   <!-- Descripción -->
-  <p class="text-gray-500 text-sm line-clamp-2 leading-relaxed mb-4">{description}</p>
+  <p class="text-gray-500 text-sm line-clamp-2 leading-relaxed mb-4 flex-1">{description}</p>
 
   <!-- Metadata inferior: fecha + versiones en mono -->
-  <p class="text-xs font-mono text-gray-600 tabular-nums">
+  <p class="text-xs font-mono text-gray-600 tabular-nums mt-auto">
     {fecha.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}
     <span aria-hidden="true"> · </span>
     {servicenow_version.join(', ')}

@@ -83,6 +83,7 @@ Definidas en `src/content/config.ts` y soportadas en routing:
 
 - `ArticleCard.astro` - Card de artículo para el home y listados de categoría
 - `Search.astro` - Búsqueda estática vía Pagefind
+- `SearchPalette.astro` - Paleta de búsqueda custom del header, con overlay montado en `body`, estado visual de "search mode" y backdrop suavizado para mantener el fondo perceptible
 - `layouts/Base.astro` - Layout raíz (head, nav, footer)
 - `layouts/Article.astro` - Layout específico de artículos
 - `pages/index.astro` - Home dinámica con listado ordenado por fecha

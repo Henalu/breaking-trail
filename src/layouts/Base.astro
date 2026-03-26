@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css'
-import Search from '../components/Search.astro'
+import SearchPalette from '../components/SearchPalette.astro'
 import { getCollection } from 'astro:content'
 import { CATEGORIA_LABELS } from '../lib/categories'
 
@@ -8,9 +8,10 @@ interface Props {
   title: string
   description: string
   narrow?: boolean
+  wide?: boolean
 }
 
-const { title, description, narrow = false } = Astro.props
+const { title, description, narrow = false, wide = false } = Astro.props
 
 const articles = await getCollection('articles')
 const slugsConArticulos = [...new Set(articles.map(a => a.data.categoria))]
@@ -32,24 +33,23 @@ const currentPath = Astro.url.pathname
     <title>{Astro.url.pathname === '/' ? 'Breaking Trail — Referencia técnica ServiceNow en español' : `${title} | Breaking Trail`}</title>
     <link rel="preload" href="/fonts/Geist-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/GeistMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
-    <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
-    <script src="/pagefind/pagefind-ui.js" defer is:inline></script>
   </head>
   <body class="bg-[#0a0a0a] text-gray-100 min-h-screen font-sans antialiased">
 
     <header class="border-b border-white/[0.06] sticky top-0 z-10 bg-[#0a0a0a]/90 backdrop-blur-sm">
       <div class="max-w-5xl mx-auto px-6">
 
-        <!-- Fila 1: Logo + Búsqueda + Hamburguesa -->
-        <div class="flex items-center justify-between h-14 gap-6">
+        <!-- Row 1: Logo + Search + Mobile menu toggle -->
+        <div class="flex items-center justify-between h-14 gap-4">
           <a href="/" class="shrink-0 text-sm font-semibold text-white tracking-tight">
             Breaking Trail
           </a>
+
           <div class="flex items-center gap-3">
-            <Search />
+            <SearchPalette />
             <button
               id="menu-toggle"
-              class="md:hidden shrink-0 text-gray-400 hover:text-white transition-colors p-1"
+              class="md:hidden shrink-0 text-gray-400 hover:text-white transition-colors p-1 cursor-pointer"
               aria-label="Abrir menú de categorías"
               aria-expanded="false"
               aria-controls="mobile-menu"
@@ -64,7 +64,7 @@ const currentPath = Astro.url.pathname
           </div>
         </div>
 
-        <!-- Fila 2: Categorías desktop con fade de overflow (A-7) -->
+        <!-- Row 2: Desktop category nav -->
         <div class="hidden md:block relative">
           <nav aria-label="Categorías" class="flex items-center gap-1 overflow-x-auto scrollbar-none pb-2">
             {categorias.map(cat => (
@@ -85,7 +85,7 @@ const currentPath = Astro.url.pathname
           <div class="absolute right-0 top-0 bottom-2 w-8 bg-gradient-to-l from-[#0a0a0a] to-transparent pointer-events-none" aria-hidden="true"></div>
         </div>
 
-        <!-- Menú móvil (desplegable) -->
+        <!-- Mobile menu -->
         <nav id="mobile-menu" class="hidden md:hidden flex-col pb-3" aria-label="Categorías">
           {categorias.map(cat => (
             <a
@@ -108,7 +108,7 @@ const currentPath = Astro.url.pathname
 
     <main class:list={[
       'mx-auto px-6 pt-14 pb-20',
-      narrow ? 'max-w-[720px]' : 'max-w-[900px]'
+      wide ? 'max-w-5xl' : narrow ? 'max-w-[720px]' : 'max-w-[900px]'
     ]}>
       <slot />
     </main>

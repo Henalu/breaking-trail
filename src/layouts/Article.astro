@@ -1,5 +1,9 @@
 ---
 import Base from './Base.astro'
+import TableOfContents from '../components/TableOfContents.astro'
+import CodeCopyButton from '../components/CodeCopyButton.astro'
+import ArticleCard from '../components/ArticleCard.astro'
+import { getCollection } from 'astro:content'
 import { CATEGORIA_LABELS, DIFICULTAD_LABELS, DIFICULTAD_COLORS } from '../lib/categories'
 
 interface Props {
@@ -20,73 +24,111 @@ const fechaFormateada = fecha.toLocaleDateString('es-ES', {
   month: 'long',
   day: 'numeric',
 })
+
+// Get related articles (same category, excluding current)
+const allArticles = await getCollection('articles')
+const related = allArticles
+  .filter(a => a.data.categoria === categoria && a.data.title !== title)
+  .sort((a, b) => b.data.fecha.getTime() - a.data.fecha.getTime())
+  .slice(0, 3)
 ---
 
-<Base title={title} description={description} narrow={true}>
-  <article>
-    <!-- Breadcrumb -->
-    <nav aria-label="Ruta de navegación" class="text-xs font-mono text-gray-600 mb-8 flex items-center gap-1 flex-wrap tracking-wide">
-      <a href="/" class="hover:text-gray-400 transition-colors">Inicio</a>
-      <span class="mx-1" aria-hidden="true">/</span>
-      <a href={`/categoria/${categoria}`} class="hover:text-gray-400 transition-colors">
-        {CATEGORIA_LABELS[categoria] ?? categoria}
-      </a>
-      <span class="mx-1" aria-hidden="true">/</span>
-      <span class="text-gray-500 truncate max-w-[260px] sm:max-w-none" aria-current="page">{title}</span>
-    </nav>
+<Base title={title} description={description} wide={true}>
+  <div class="max-w-[720px] mx-auto xl:max-w-none xl:grid xl:grid-cols-[720px_1fr] xl:gap-12">
+    <!-- Main article column -->
+    <article class="min-w-0">
+      <!-- Breadcrumb -->
+      <nav aria-label="Ruta de navegación" class="text-xs font-mono text-gray-600 mb-8 flex items-center gap-1 flex-wrap tracking-wide">
+        <a href="/" class="hover:text-gray-400 transition-colors">Inicio</a>
+        <span class="mx-1" aria-hidden="true">/</span>
+        <a href={`/categoria/${categoria}`} class="hover:text-gray-400 transition-colors">
+          {CATEGORIA_LABELS[categoria] ?? categoria}
+        </a>
+        <span class="mx-1" aria-hidden="true">/</span>
+        <span class="text-gray-500 truncate max-w-[260px] sm:max-w-none" aria-current="page">{title}</span>
+      </nav>
 
-    <!-- Cabecera del artículo -->
-    <header class="mb-8 pb-8 border-b border-white/[0.08]">
-      <div class="flex flex-wrap items-center gap-2 mb-4">
-        <span class={`text-xs font-medium px-2 py-1 rounded ${DIFICULTAD_COLORS[dificultad]}`}>
-          {DIFICULTAD_LABELS[dificultad]}
-        </span>
-        {!resuelto && (
-          <span class="text-xs font-medium px-2 py-1 rounded text-orange-400 bg-orange-400/10">
-            Sin solución completa
+      <!-- Article header -->
+      <header class="mb-8 pb-8 border-b border-white/[0.08]">
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <span class={`text-xs font-medium px-2 py-1 rounded ${DIFICULTAD_COLORS[dificultad]}`}>
+            {DIFICULTAD_LABELS[dificultad]}
           </span>
-        )}
+          {!resuelto && (
+            <span class="text-xs font-medium px-2 py-1 rounded text-orange-400 bg-orange-400/10">
+              Sin solución completa
+            </span>
+          )}
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl font-bold text-white mb-4 leading-[1.12] tracking-tight">{title}</h1>
+        <p class="text-gray-400 text-lg mb-6 leading-relaxed">{description}</p>
+
+        <div class="flex flex-wrap gap-4 text-xs font-mono text-gray-500 tabular-nums">
+          <span>{fechaFormateada}</span>
+          <span aria-hidden="true">·</span>
+          <span>{servicenow_version.join(', ')}</span>
+        </div>
+
+        <div class="flex flex-wrap gap-2 mt-4">
+          {tags.map(tag => (
+            <span class="text-xs px-2 py-1 rounded bg-white/[0.04] text-gray-400 border border-white/[0.06]">#{tag}</span>
+          ))}
+        </div>
+      </header>
+
+      <!-- Article content -->
+      <div class="prose prose-invert max-w-none
+        prose-headings:text-white prose-headings:tracking-tight prose-headings:font-bold
+        prose-h2:text-xl prose-h2:mt-12 prose-h2:mb-4
+        prose-h3:text-lg prose-h3:mt-8 prose-h3:mb-3 prose-h3:font-semibold
+        prose-p:text-gray-300 prose-p:leading-[1.8]
+        prose-li:text-gray-300 prose-li:leading-[1.75]
+        prose-strong:text-gray-100 prose-strong:font-semibold
+        prose-a:text-blue-400 prose-a:no-underline prose-a:font-normal
+        prose-code:text-blue-300 prose-code:font-mono prose-code:text-[0.875em] prose-code:font-normal
+        prose-pre:bg-[#0d0d0d] prose-pre:border prose-pre:border-white/[0.07] prose-pre:rounded-lg
+        prose-blockquote:border-l-white/[0.12] prose-blockquote:text-gray-400 prose-blockquote:not-italic prose-blockquote:font-normal
+        prose-hr:border-white/[0.08]
+        prose-table:text-sm prose-thead:text-gray-400 prose-td:text-gray-300
+      ">
+        <slot />
       </div>
 
-      <h1 class="text-4xl font-bold text-white mb-4 leading-[1.1] tracking-tight">{title}</h1>
-      <p class="text-gray-400 text-lg mb-6 leading-relaxed">{description}</p>
+      <!-- Article footer -->
+      <footer class="mt-12 pt-8 border-t border-white/[0.08]">
+        <a href={`/categoria/${categoria}`} class="text-blue-400 hover:text-blue-300 transition-colors text-sm">
+          ← Ver más artículos de {CATEGORIA_LABELS[categoria] ?? categoria}
+        </a>
+      </footer>
 
-      <div class="flex flex-wrap gap-4 text-xs font-mono text-gray-500 tabular-nums">
-        <span>{fechaFormateada}</span>
-        <span aria-hidden="true">·</span>
-        <span>{servicenow_version.join(', ')}</span>
-      </div>
+      <!-- Related articles -->
+      {related.length > 0 && (
+        <div class="mt-12 pt-8 border-t border-white/[0.08]">
+          <h2 class="text-xs font-mono text-gray-500 uppercase tracking-widest mb-5">
+            Artículos relacionados
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+            {related.map(articulo => (
+              <ArticleCard
+                slug={articulo.slug}
+                title={articulo.data.title}
+                description={articulo.data.description}
+                categoria={articulo.data.categoria}
+                dificultad={articulo.data.dificultad}
+                fecha={articulo.data.fecha}
+                servicenow_version={articulo.data.servicenow_version}
+                resuelto={articulo.data.resuelto}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </article>
 
-      <div class="flex flex-wrap gap-2 mt-4">
-        {tags.map(tag => (
-          <span class="text-xs px-2 py-1 rounded bg-gray-800 text-gray-400">#{tag}</span>
-        ))}
-      </div>
-    </header>
+    <!-- TOC sidebar (xl+ only) -->
+    <TableOfContents />
+  </div>
 
-    <!-- Contenido del artículo -->
-    <div class="prose prose-invert max-w-none
-      prose-headings:text-white prose-headings:tracking-tight prose-headings:font-bold
-      prose-h2:text-xl prose-h2:mt-12 prose-h2:mb-4
-      prose-h3:text-lg prose-h3:mt-8 prose-h3:mb-3 prose-h3:font-semibold
-      prose-p:text-gray-300 prose-p:leading-[1.8]
-      prose-li:text-gray-300 prose-li:leading-[1.75]
-      prose-strong:text-gray-100 prose-strong:font-semibold
-      prose-a:text-blue-400 prose-a:no-underline prose-a:font-normal
-      prose-code:text-blue-300 prose-code:font-mono prose-code:text-[0.875em] prose-code:font-normal
-      prose-pre:bg-[#0d0d0d] prose-pre:border prose-pre:border-white/[0.07] prose-pre:rounded-lg
-      prose-blockquote:border-l-white/[0.12] prose-blockquote:text-gray-400 prose-blockquote:not-italic prose-blockquote:font-normal
-      prose-hr:border-white/[0.08]
-      prose-table:text-sm prose-thead:text-gray-400 prose-td:text-gray-300
-    ">
-      <slot />
-    </div>
-
-    <!-- Pie del artículo -->
-    <footer class="mt-12 pt-8 border-t border-white/[0.08]">
-      <a href={`/categoria/${categoria}`} class="text-blue-400 hover:text-blue-300 transition-colors text-sm">
-        ← Ver más artículos de {CATEGORIA_LABELS[categoria] ?? categoria}
-      </a>
-    </footer>
-  </article>
+  <CodeCopyButton />
 </Base>

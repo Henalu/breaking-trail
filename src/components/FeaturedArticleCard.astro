@@ -1,0 +1,58 @@
+---
+import { CATEGORIA_LABELS, DIFICULTAD_LABELS, DIFICULTAD_COLORS } from '../lib/categories'
+
+interface Props {
+  slug: string
+  title: string
+  description: string
+  categoria: string
+  dificultad: string
+  fecha: Date
+  servicenow_version: string[]
+  resuelto: boolean
+}
+
+const { slug, title, description, categoria, dificultad, fecha, servicenow_version, resuelto } = Astro.props
+---
+
+<a
+  href={`/articulos/${slug}`}
+  class="block p-6 sm:p-8 rounded-xl border border-white/[0.07] hover:border-white/[0.16] hover:bg-white/[0.02] active:bg-white/[0.04] transition-[border-color,background-color,color] duration-200 group relative overflow-hidden"
+>
+  <!-- Subtle top accent line -->
+  <div class="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent" aria-hidden="true"></div>
+
+  <div class="flex items-center gap-2 mb-4 flex-wrap">
+    <span class="text-xs font-mono text-blue-400/70 uppercase tracking-[0.08em]">
+      Último artículo
+    </span>
+    <span class="text-gray-700" aria-hidden="true">·</span>
+    <span class="text-xs font-mono text-gray-600 uppercase tracking-[0.08em]">
+      {CATEGORIA_LABELS[categoria] ?? categoria}
+    </span>
+    <span class="text-gray-700" aria-hidden="true">·</span>
+    <span class={`text-xs font-medium px-1.5 py-0.5 rounded ${DIFICULTAD_COLORS[dificultad]}`}>
+      {DIFICULTAD_LABELS[dificultad]}
+    </span>
+    {!resuelto && (
+      <span class="text-xs text-orange-400">Sin solución completa</span>
+    )}
+  </div>
+
+  <h2 class="text-xl sm:text-2xl font-bold text-gray-100 group-hover:text-white transition-colors mb-3 leading-snug tracking-tight">
+    {title}
+  </h2>
+
+  <p class="text-gray-400 text-sm sm:text-base leading-relaxed mb-5 max-w-[600px]">{description}</p>
+
+  <div class="flex items-center justify-between flex-wrap gap-3">
+    <p class="text-xs font-mono text-gray-600 tabular-nums">
+      {fecha.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}
+      <span aria-hidden="true"> · </span>
+      {servicenow_version.join(', ')}
+    </p>
+    <span class="text-xs text-gray-500 group-hover:text-blue-400/80 transition-colors font-mono">
+      Leer artículo →
+    </span>
+  </div>
+</a>

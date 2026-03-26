@@ -1,0 +1,95 @@
+---
+// TOC is generated client-side from article headings
+// This component provides the container and styling
+---
+
+<aside id="toc-sidebar" class="hidden xl:block" aria-label="Tabla de contenidos">
+  <nav class="sticky top-24">
+    <p class="text-[11px] font-mono text-gray-500 uppercase tracking-widest mb-3">En este artículo</p>
+    <ul id="toc-list" class="space-y-1 text-sm border-l border-white/[0.06] max-h-[calc(100vh-8rem)] overflow-y-auto">
+      <!-- Populated by client-side script -->
+    </ul>
+  </nav>
+</aside>
+
+<script is:inline>
+(function() {
+  const tocList = document.getElementById('toc-list')
+  if (!tocList) return
+
+  // Find all H2 headings in the article prose
+  const prose = document.querySelector('.prose')
+  if (!prose) return
+
+  const headings = prose.querySelectorAll('h2')
+  if (headings.length < 2) {
+    // Don't show TOC if fewer than 2 sections
+    const sidebar = document.getElementById('toc-sidebar')
+    if (sidebar) sidebar.classList.add('xl:hidden')
+    return
+  }
+
+  // Ensure headings have IDs
+  headings.forEach((heading, i) => {
+    if (!heading.id) {
+      heading.id = heading.textContent
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim() || `section-${i}`
+    }
+  })
+
+  // Build TOC items
+  tocList.innerHTML = Array.from(headings).map(heading =>
+    `<li>
+      <a href="#${heading.id}" class="toc-link block py-1 pl-3 text-xs text-gray-500 hover:text-gray-300 transition-colors border-l-2 border-transparent -ml-px" data-toc-id="${heading.id}">
+        ${heading.textContent}
+      </a>
+    </li>`
+  ).join('')
+
+  // Scroll spy: highlight current section
+  const tocLinks = tocList.querySelectorAll('.toc-link')
+  let activeLink = null
+
+  function updateActive() {
+    let current = null
+    const offset = 100
+
+    headings.forEach(heading => {
+      const rect = heading.getBoundingClientRect()
+      if (rect.top <= offset) {
+        current = heading.id
+      }
+    })
+
+    if (current !== activeLink) {
+      activeLink = current
+      tocLinks.forEach(link => {
+        const isActive = link.dataset.tocId === current
+        link.classList.toggle('text-gray-300', isActive)
+        link.classList.toggle('text-gray-500', !isActive)
+        link.classList.toggle('border-blue-400/50', isActive)
+        link.classList.toggle('border-transparent', !isActive)
+      })
+    }
+  }
+
+  // Throttled scroll handler
+  let ticking = false
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        updateActive()
+        ticking = false
+      })
+      ticking = true
+    }
+  })
+
+  updateActive()
+})()
+</script>

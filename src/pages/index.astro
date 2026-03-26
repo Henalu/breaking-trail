@@ -2,37 +2,57 @@
 import { getCollection } from 'astro:content'
 import Base from '../layouts/Base.astro'
 import ArticleCard from '../components/ArticleCard.astro'
+import FeaturedArticleCard from '../components/FeaturedArticleCard.astro'
 
 const articulos = (await getCollection('articles'))
   .sort((a, b) => b.data.fecha.getTime() - a.data.fecha.getTime())
+
+const featured = articulos[0]
+const rest = articulos.slice(1)
 ---
 
 <Base title="Inicio" description="Referencia técnica de ServiceNow en español. Problemas reales, soluciones reales.">
   <div data-pagefind-ignore="all">
 
     <!-- Hero -->
-    <div class="pb-12 border-b border-white/[0.06]">
-      <p class="text-xs font-mono text-blue-400/60 tracking-[0.15em] uppercase mb-5">
+    <div class="pb-14 border-b border-white/[0.06]">
+      <p class="text-xs font-mono text-blue-400/60 tracking-[0.15em] uppercase mb-6">
         ServiceNow · En español
       </p>
-      <h1 class="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-[1.08] mb-5">
+      <h1 class="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-[1.08] mb-6">
         Breaking Trail
       </h1>
-      <p class="text-gray-400 text-lg leading-relaxed max-w-[520px]">
+      <p class="text-gray-400 text-lg leading-relaxed max-w-[540px]">
         Referencia técnica de ServiceNow en español.<br class="hidden sm:block" />
         Problemas reales de producción, soluciones reales con código.
       </p>
     </div>
 
-    <!-- Lista de artículos -->
-    <div class="pt-10">
-      <h2 class="text-xs font-mono text-gray-600 tracking-widest uppercase mb-6">
-        {articulos.length} artículos
-      </h2>
+    <!-- Featured article -->
+    {featured && (
+      <div class="pt-10 pb-10 border-b border-white/[0.06]">
+        <FeaturedArticleCard
+          slug={featured.slug}
+          title={featured.data.title}
+          description={featured.data.description}
+          categoria={featured.data.categoria}
+          dificultad={featured.data.dificultad}
+          fecha={featured.data.fecha}
+          servicenow_version={featured.data.servicenow_version}
+          resuelto={featured.data.resuelto}
+        />
+      </div>
+    )}
 
-      <ul class="space-y-3">
-        {articulos.map(articulo => (
-          <li>
+    <!-- Remaining articles -->
+    {rest.length > 0 && (
+      <div class="pt-10">
+        <h2 class="text-xs font-mono text-gray-600 tracking-widest uppercase mb-6">
+          {articulos.length} artículos
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {rest.map(articulo => (
             <ArticleCard
               slug={articulo.slug}
               title={articulo.data.title}
@@ -43,10 +63,10 @@ const articulos = (await getCollection('articles'))
               servicenow_version={articulo.data.servicenow_version}
               resuelto={articulo.data.resuelto}
             />
-          </li>
-        ))}
-      </ul>
-    </div>
+          ))}
+        </div>
+      </div>
+    )}
 
   </div>
 </Base>
