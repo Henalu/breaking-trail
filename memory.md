@@ -1,16 +1,16 @@
-# Breaking Trail — Memory
+# Breaking Trail - Memory
 
 > Archivo de estado vivo del proyecto. Actualizar cada vez que cambie algo relevante.
-> Última actualización: 2026-03-12
+> Última actualización: 2026-03-26
 
 ---
 
 ## Estado general
 
-- **Fase actual:** Fase 3 — Autoridad (en curso)
+- **Fase actual:** Fase 3 - Autoridad (en curso)
 - **URL producción:** breaking-trail.vercel.app
-- **Progreso hacia 20 artículos:** 10/20
-- **Deploy:** Push a `main` → Vercel automático (~30s)
+- **Progreso hacia 20 artículos:** 18/20
+- **Deploy:** Push a `main` -> Vercel automático (~30s)
 
 ---
 
@@ -25,33 +25,39 @@
 | `awa/awa-motor-afinidad-personalizado.md` | Cuando AWA Affinity no es suficiente: construye tu propio motor de afinidad | avanzado | Washington, Xanadu, Yokohama |
 | `awa/awa-skills-niveles-motor-personalizado.md` | AWA Skill Level no es un ranking: cómo implementar asignación por niveles de skill | avanzado | Washington, Xanadu, Yokohama |
 
-### UI Actions (3 artículos)
+### UI Actions (5 artículos)
 
 | Archivo | Título | Dificultad | Versiones |
 |---------|--------|------------|-----------|
 | `ui-actions/exportar-registros-seleccionados-lista.md` | Exportar registros seleccionados desde una lista en ServiceNow | intermedio | Xanadu, Zurich |
-| `ui-actions/prefiltrar-slushbucket-m2m-ui-action.md` | Cómo prefiltrar el Slushbucket de una related list M2M | intermedio | Vancouver |
+| `ui-actions/prefiltrar-slushbucket-m2m-ui-action.md` | Cómo prefiltrar el Slushbucket de una related list M2M en ServiceNow | intermedio | Vancouver, Washington, Xanadu |
 | `ui-actions/export-all-query-activa.md` | UI Action Export ALL: exportar solo lo que el usuario realmente ve | intermedio | Utah, Vancouver, Washington, Xanadu |
+| `ui-actions/abrir-registros-glidelist-desde-lista.md` | Abrir registros de un campo GlideList desde la lista o el Workspace | intermedio | Xanadu, Zurich |
+| `ui-actions/ui-action-hibrida-formulario-lista-multiregistro.md` | UI Action híbrida: formulario y lista con soporte multi-registro | intermedio | Utah, Vancouver, Washington, Xanadu |
 
-### UI Builder (1 artículo)
+### UI Builder (2 artículos)
 
 | Archivo | Título | Dificultad | Versiones |
 |---------|--------|------------|-----------|
 | `ui-builder/llamar-script-include-desde-ui-builder.md` | Cómo llamar a un Script Include desde un Client Script de UI Builder | avanzado | Zurich |
+| `ui-builder/navegar-registro-workspace-desde-event-handler.md` | Cómo navegar a un registro del workspace desde un Event Handler de UI Builder | intermedio | Xanadu, Zurich |
 
-### Workspaces (3 artículos)
+### Workspaces (6 artículos)
 
 | Archivo | Título | Dificultad | Versiones |
 |---------|--------|------------|-----------|
-| `workspaces/declarative-actions-visibilidad-workspace.md` | Declarative Actions no aparecen en el Workspace: la cadena UXF | avanzado | Zurich |
-| `workspaces/declarative-actions-patron-herencia-action-name.md` | El patrón de herencia de Declarative Actions: Action Name | avanzado | Zurich |
-| `workspaces/workspace-listas-panel-lateral-configuracion.md` | Cómo configurar las listas del panel lateral en un Workspace | intermedio | Vancouver, Washington DC |
+| `workspaces/declarative-actions-visibilidad-workspace.md` | Declarative Actions no aparecen en el Workspace: la cadena de configuración UXF que nadie documenta | avanzado | Zurich |
+| `workspaces/declarative-actions-patron-herencia-action-name.md` | El patrón de herencia de Declarative Actions: cómo ServiceNow usa Action Name para sobrescribir lógica por tabla | avanzado | Zurich |
+| `workspaces/workspace-listas-panel-lateral-configuracion.md` | Cómo configurar las listas del panel lateral en un Workspace de ServiceNow | intermedio | Vancouver, Washington DC, Xanadu |
+| `workspaces/declarative-actions-experience-restricted-dynamic-evaluation.md` | Experience Restricted y Dynamic Evaluation en Declarative Actions: el callejón sin salida en workspaces custom | avanzado | Utah, Vancouver, Washington, Xanadu |
+| `workspaces/abrir-multiples-registros-desde-da-lista.md` | Abrir múltiples registros desde una DA de lista: g_aw no está disponible | intermedio | Xanadu, Zurich |
+| `workspaces/extender-inbox-awa-workspace-custom.md` | Cómo extender el Inbox de AWA en un Workspace personalizado | avanzado | Xanadu |
 
 ### Integraciones (1 artículo)
 
 | Archivo | Título | Dificultad | Versiones |
 |---------|--------|------------|-----------|
-| `integraciones/carga-masiva-excel-catalog-item.md` | Carga masiva desde Excel mediante Catalog Item y Flow Designer | avanzado | Vancouver |
+| `integraciones/carga-masiva-excel-catalog-item.md` | Carga masiva desde Excel mediante Catalog Item y Flow Designer | avanzado | Vancouver, Washington, Xanadu |
 
 ---
 
@@ -66,8 +72,8 @@ Definidas en `src/content/config.ts` y soportadas en routing:
 - `business-rules` *(sin artículos aún)*
 - `transform-maps` *(sin artículos aún)*
 - `ui-actions`
-- `ui-builder`
 - `workspaces`
+- `ui-builder`
 
 > ⚠️ Añadir categoría nueva requiere actualizar: `config.ts` + `categoria/[categoria].astro` + navegación.
 
@@ -75,13 +81,13 @@ Definidas en `src/content/config.ts` y soportadas en routing:
 
 ## Componentes y layouts
 
-- `ArticleCard.astro` — Card de artículo para el home y listados de categoría
-- `Search.astro` — Búsqueda estática via Pagefind
-- `layouts/Base.astro` — Layout raíz (head, nav, footer)
-- `layouts/Article.astro` — Layout específico de artículos
-- `pages/index.astro` — Home dinámica con listado ordenado por fecha
-- `pages/articulos/[...slug].astro` — Página individual de artículo
-- `pages/categoria/[categoria].astro` — Listado por categoría
+- `ArticleCard.astro` - Card de artículo para el home y listados de categoría
+- `Search.astro` - Búsqueda estática vía Pagefind
+- `layouts/Base.astro` - Layout raíz (head, nav, footer)
+- `layouts/Article.astro` - Layout específico de artículos
+- `pages/index.astro` - Home dinámica con listado ordenado por fecha
+- `pages/articulos/[...slug].astro` - Página individual de artículo
+- `pages/categoria/[categoria].astro` - Listado por categoría
 
 ---
 
@@ -90,8 +96,6 @@ Definidas en `src/content/config.ts` y soportadas en routing:
 | # | Título | Categoría | Estado |
 |---|--------|-----------|--------|
 | 1 | Filtrar dinámicamente una variable tipo Slushbucket según roles | business-rules | ⏳ Pendiente |
-| 2 | Afinidad en AWA: por qué no funciona como esperas | awa | ⏳ Pendiente |
-| 3 | Skills con niveles en AWA: la limitación estructural | awa | ⏳ Pendiente |
 
 ---
 
@@ -100,7 +104,7 @@ Definidas en `src/content/config.ts` y soportadas en routing:
 ```
 [ ] Crear en src/content/articles/[categoria]/nombre.md
 [ ] Frontmatter completo (title, description, categoria, tags, fecha, dificultad, servicenow_version, resuelto)
-[ ] Estructura: problema → por qué ocurre → lo que no funcionó → solución con código → cómo verificar → edge cases → versiones
+[ ] Estructura: problema -> por qué ocurre -> lo que no funcionó -> solución con código -> cómo verificar -> edge cases -> versiones
 [ ] npm run build (sin errores)
 [ ] git add . && git commit -m "feat: nuevo artículo - [título]" && git push
 [ ] Actualizar este memory.md (artículos publicados + contador)
