@@ -9,6 +9,7 @@ const articles = defineCollection({
       'awa',
       'cmdb',
       'assignment-engine',
+      'configuracion',
       'integraciones',
       'business-rules',
       'transform-maps',

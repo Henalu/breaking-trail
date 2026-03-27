@@ -3,6 +3,7 @@ export const CATEGORIA_LABELS: Record<string, string> = {
   'awa': 'Advanced Work Assignment',
   'business-rules': 'Business Rules',
   'cmdb': 'CMDB',
+  'configuracion': 'Configuración',
   'integraciones': 'Integraciones',
   'transform-maps': 'Transform Maps',
   'ui-actions': 'UI Actions',
