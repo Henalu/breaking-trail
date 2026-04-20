@@ -90,6 +90,12 @@ Definidas en `src/content/config.ts` y soportadas en routing:
 - `pages/articulos/[...slug].astro` - Página individual de artículo
 - `pages/categoria/[categoria].astro` - Listado por categoría
 
+## Observabilidad
+
+- Web Analytics de Vercel habilitado en `src/layouts/Base.astro` mediante `@vercel/analytics/astro`
+- Dependencia añadida: `@vercel/analytics@1.5.0`
+- Instalación realizada con `--legacy-peer-deps` para evitar un conflicto de `peerOptional` de Svelte/Vite ajeno al stack Astro del proyecto
+
 ---
 
 ## Próximos artículos planificados
