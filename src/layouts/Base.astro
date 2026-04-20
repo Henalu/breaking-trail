@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css'
 import Analytics from '@vercel/analytics/astro'
+import SpeedInsights from '@vercel/speed-insights/astro'
 import SearchPalette from '../components/SearchPalette.astro'
 import { getCollection } from 'astro:content'
 import { CATEGORIA_LABELS } from '../lib/categories'
@@ -36,6 +37,7 @@ const articleCount = articles.length
     <link rel="preload" href="/fonts/Geist-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/GeistMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <Analytics />
+    <SpeedInsights />
   </head>
   <body class="bg-[#0a0a0a] text-gray-100 min-h-screen font-sans antialiased">
 

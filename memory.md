@@ -95,6 +95,9 @@ Definidas en `src/content/config.ts` y soportadas en routing:
 - Web Analytics de Vercel habilitado en `src/layouts/Base.astro` mediante `@vercel/analytics/astro`
 - Dependencia añadida: `@vercel/analytics@1.5.0`
 - Instalación realizada con `--legacy-peer-deps` para evitar un conflicto de `peerOptional` de Svelte/Vite ajeno al stack Astro del proyecto
+- Speed Insights de Vercel habilitado en `src/layouts/Base.astro` mediante `@vercel/speed-insights/astro`
+- Dependencia añadida: `@vercel/speed-insights@1.3.1`
+- Speed Insights también se instaló con `--legacy-peer-deps` por el mismo patrón de peer deps opcionales ajenos al stack del proyecto
 
 ---
 
